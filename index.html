@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>STARK INDUSTRIES | HOLOGRAPHIC DESK</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.150.0/three.min.js"></script>
+
+    <style>
+        :root { 
+            --cyan: #00f2ff; 
+            --red: #ff3333; 
+            --glass: rgba(10, 25, 45, 0.9);
+            --border: rgba(0, 242, 255, 0.3);
+        }
+
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background: radial-gradient(circle at center, #0a1a2a 0%, #000 100%); 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            color: var(--cyan); 
+        }
+
+        /* --- Entry Screen --- */
+        #overlay-start { 
+            position: fixed; inset: 0; background: #000; z-index: 1000; 
+            display: flex; align-items: center; justify-content: center; 
+        }
+        .access-box { 
+            padding: 40px; border: 1px solid var(--cyan); text-align: center; 
+            background: rgba(0,242,255,0.05); box-shadow: 0 0 30px rgba(0,242,255,0.1);
+        }
+        #activate-btn { 
+            background: transparent; border: 2px solid var(--cyan); color: var(--cyan); 
+            padding: 15px 30px; cursor: pointer; font-weight: bold; font-size: 1.1rem; 
+            margin-top: 20px; letter-spacing: 2px; transition: 0.3s;
+        }
+        #activate-btn:hover { background: var(--cyan); color: #000; box-shadow: 0 0 20px var(--cyan); }
+
+        /* --- Premium Desk UI --- */
+        .glass-panel { 
+            position: absolute; background: var(--glass); backdrop-filter: blur(10px); 
+            border: 1px solid var(--border); padding: 20px; z-index: 10; pointer-events: all;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        #left-panel { top: 30px; left: 30px; width: 220px; border-left: 5px solid var(--cyan); }
+        #right-panel { top: 30px; right: 30px; width: 220px; text-align: right; border-right: 5px solid var(--cyan); }
+        
+        h1, h3 { margin: 0; letter-spacing: 2px; text-transform: uppercase; font-size: 1.2rem; }
+        .stat-line { margin: 10px 0; font-size: 0.8rem; opacity: 0.8; }
+        
+        .btn-ui { 
+            width: 100%; padding: 10px; margin-top: 10px; background: rgba(0,242,255,0.1); 
+            border: 1px solid var(--cyan); color: var(--cyan); cursor: pointer; text-transform: uppercase;
+        }
+
+        #video-preview { 
+            position: absolute; bottom: 30px; right: 30px; width: 200px; height: 150px; 
+            border: 2px solid var(--cyan); transform: scaleX(-1); border-radius: 10px; 
+            z-index: 5; background: #050505; object-fit: cover;
+        }
+
+        #overload-warning { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            color: var(--red); font-size: 60px; display: none; font-weight: 900; 
+            text-shadow: 0 0 20px red; z-index: 20; animation: blink 0.5s infinite;
+        }
+
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
+
+        #loading-screen { 
+            position: fixed; inset: 0; background: #000; z-index: 500; 
+            display: flex; align-items: center; justify-content: center; 
+        }
+    </style>
+</head>
+<body>
+
+    <div id="overlay-start">
+        <div class="access-box">
+            <h1>STARK INDUSTRIES</h1>
+            <p>ENCRYPTED PROTOCOL v9.5</p>
+            <button id="activate-btn" onclick="initializeSystem()">MAKE YOUR REACTOR</button>
+        </div>
+    </div>
+
+    <div id="loading-screen" style="display:none;">INITIALIZING SENSORS...</div>
+
+    <div id="ui-container" style="display:none;">
+        <div id="left-panel" class="glass-panel">
+            <h3>CORE SELECT</h3>
+            <button class="btn-ui" onclick="changeMode('reactor')">Arc MK-85</button>
+            <button class="btn-ui" onclick="changeMode('nano')">Nano Core</button>
+            <p class="stat-line">PROXIMITY BLAST: ACTIVE</p>
+        </div>
+
+        <div id="right-panel" class="glass-panel">
+            <h3>DIAGNOSTICS</h3>
+            <div class="stat-line">STATUS: <span id="track-stat" style="color:orange">OFFLINE</span></div>
+            <div class="stat-line">COLOR: <span id="color-name">CYAN</span></div>
+            <div style="height:4px; width:100%; background:rgba(255,255,255,0.1); margin-top:10px;">
+                <div id="power-bar" style="height:100%; width:85%; background:var(--cyan); transition:0.3s;"></div>
+            </div>
+        </div>
+
+        <div id="overload-warning">OVERLOAD</div>
+    </div>
+
+    <video id="video-preview" autoplay playsinline></video>
+
+    <script>
+        let scene, camera, renderer, group, isBlasted = false, currentMode = 'reactor';
+        let colorIdx = 0;
+        const colors = [0x00f2ff, 0xffcc00, 0xff3333, 0x00ff88, 0x9900ff];
+        const colorNames = ["CYAN", "GOLD", "RED", "EMERALD", "VIOLET"];
+
+        // Initialize 3D Scene
+        function initThree() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.body.appendChild(renderer.domElement);
+            
+            group = new THREE.Group();
+            scene.add(group);
+            camera.position.z = 12;
+            
+            const light = new THREE.PointLight(0xffffff, 1.5, 100);
+            light.position.set(0, 0, 10);
+            scene.add(light);
+            
+            buildEngine();
+            animate();
+        }
+
+        function buildEngine() {
+            if(!group) return;
+            while(group.children.length > 0) group.remove(group.children[0]);
+            
+            const material = new THREE.MeshPhongMaterial({ 
+                color: colors[colorIdx], 
+                wireframe: true, 
+                transparent: true, 
+                opacity: 0.7, 
+                emissive: colors[colorIdx], 
+                emissiveIntensity: 0.5 
+            });
+            
+            if(currentMode === 'reactor') {
+                for(let i=0; i<12; i++) {
+                    const ring = new THREE.Mesh(new THREE.TorusGeometry(3.5, 0.05, 8, 50), material);
+                    ring.rotation.x = Math.PI/2;
+                    ring.position.y = (i-6) * 0.4;
+                    group.add(ring);
+                }
+            } else {
+                const core = new THREE.Mesh(new THREE.IcosahedronGeometry(3, 1), material);
+                group.add(core);
+                const outer = new THREE.Mesh(new THREE.SphereGeometry(4.5, 10, 10), material);
+                group.add(outer);
+            }
+        }
+
+        function initializeSystem() {
+            document.getElementById('overlay-start').style.display = 'none';
+            document.getElementById('loading-screen').style.display = 'flex';
+            document.getElementById('ui-container').style.display = 'block';
+            
+            initThree();
+
+            const video = document.getElementById('video-preview');
+            const hands = new Hands({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` });
+            
+            hands.setOptions({ maxNumHands: 1, minDetectionConfidence: 0.7, minTrackingConfidence: 0.7 });
+
+            hands.onResults((results) => {
+                document.getElementById('loading-screen').style.display = 'none';
+                const stat = document.getElementById('track-stat');
+                
+                if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                    stat.innerText = "LOCKED"; stat.style.color = "#00ff00";
+                    const lm = results.multiHandLandmarks[0];
+                    
+                    // Proximity / Blast Logic
+                    const thumb = lm[4];
+                    const index = lm[8];
+                    const distance = Math.hypot(thumb.x - index.x, thumb.y - index.y) * 25;
+                    
+                    if(distance > 13 && !isBlasted) {
+                        triggerBlast();
+                    } else if(!isBlasted) {
+                        group.children.forEach((child, i) => {
+                            child.scale.setScalar(1 + distance * 0.1);
+                            child.position.z = Math.sin(Date.now()*0.005 + i) * distance;
+                        });
+                    }
+                    group.rotation.y = (lm[0].x - 0.5) * 4;
+                    group.rotation.x = (lm[0].y - 0.5) * 2;
+                } else {
+                    stat.innerText = "SCANNING"; stat.style.color = "orange";
+                }
+            });
+
+            const cam = new Camera(video, { 
+                onFrame: async () => { await hands.send({image: video}); }, 
+                width: 640, height: 480 
+            });
+            cam.start();
+        }
+
+        function triggerBlast() {
+            isBlasted = true;
+            document.getElementById('overload-warning').style.display = 'block';
+            group.children.forEach(c => {
+                c.position.x += (Math.random() - 0.5) * 50;
+                c.position.y += (Math.random() - 0.5) * 50;
+                c.position.z += (Math.random() - 0.5) * 50;
+            });
+            setTimeout(() => {
+                isBlasted = false;
+                document.getElementById('overload-warning').style.display = 'none';
+                buildEngine();
+            }, 2000);
+        }
+
+        window.changeMode = (m) => { currentMode = m; buildEngine(); };
+
+        window.addEventListener('mousedown', (e) => {
+            if(e.target.tagName !== 'BUTTON') {
+                colorIdx = (colorIdx + 1) % colors.length;
+                document.getElementById('color-name').innerText = colorNames[colorIdx];
+                document.getElementById('power-bar').style.background = '#' + colors[colorIdx].toString(16).padStart(6, '0');
+                buildEngine();
+            }
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if(group && !isBlasted) group.rotation.y += 0.01;
+            if(renderer) renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            if(camera && renderer) {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+        });
+    </script>
+</body>
+</html>
