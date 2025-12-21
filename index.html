@@ -3,129 +3,250 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>STARK CORE V5</title>
+    <title>STARK VIP INTERFACE</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.150.0/three.min.js"></script>
 
     <style>
-        :root { --cyan: #00f2ff; --glass: rgba(10, 25, 45, 0.9); }
-        body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; color: var(--cyan); }
-        
-        #start-screen { 
-            position: fixed; inset: 0; background: #000; z-index: 1000; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-        }
-        
-        .box { padding: 30px; border: 1px solid var(--cyan); text-align: center; background: rgba(0,242,255,0.05); }
-        
-        button { 
-            background: transparent; border: 2px solid var(--cyan); color: var(--cyan); 
-            padding: 15px 25px; cursor: pointer; font-weight: bold; margin-top: 20px;
+        :root { 
+            --cyan: #00f2ff; 
+            --red: #ff3333; 
+            --glass: rgba(10, 25, 45, 0.95);
         }
 
-        #ui { position: absolute; inset: 0; pointer-events: none; display: none; }
-        .panel { position: absolute; top: 20px; padding: 15px; background: var(--glass); border: 1px solid var(--cyan); pointer-events: all; }
-        #left { left: 20px; } #right { right: 20px; text-align: right; }
-        
-        video { position: absolute; bottom: 20px; right: 20px; width: 150px; border: 1px solid var(--cyan); transform: scaleX(-1); }
-        #msg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 30px; color: red; display: none; font-weight: bold; }
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background: radial-gradient(circle at center, #05111d 0%, #000 100%); 
+            font-family: 'Courier New', Courier, monospace;
+            color: var(--cyan);
+            user-select: none;
+        }
+
+        /* --- VIP HUD STYLING --- */
+        .hud-panel {
+            position: absolute;
+            background: var(--glass);
+            border: 1px solid var(--cyan);
+            padding: 20px;
+            pointer-events: all;
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        #top-header {
+            top: 0; left: 0; width: 100%; height: 60px;
+            border-bottom: 2px solid var(--cyan);
+            display: flex; align-items: center; justify-content: space-between;
+            background: rgba(0,0,0,0.8);
+            padding: 0 20px; box-sizing: border-box;
+        }
+
+        #control-panel {
+            bottom: 30px; left: 30px; width: 280px;
+            border-radius: 0 20px 0 0;
+            border-left: 4px solid var(--cyan);
+        }
+
+        #stats-panel {
+            bottom: 30px; right: 30px; width: 220px;
+            border-radius: 20px 0 0 0;
+            border-right: 4px solid var(--cyan);
+            text-align: right;
+        }
+
+        /* --- BUTTONS & SLIDERS --- */
+        .stark-btn {
+            width: 100%;
+            background: rgba(0, 242, 255, 0.1);
+            border: 1px solid var(--cyan);
+            color: var(--cyan);
+            padding: 10px;
+            margin: 8px 0;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+
+        .stark-btn:hover { background: var(--cyan); color: #000; box-shadow: 0 0 15px var(--cyan); }
+        .stark-btn.danger { border-color: var(--red); color: var(--red); }
+        .stark-btn.danger:hover { background: var(--red); color: #fff; }
+
+        input[type=range] {
+            width: 100%;
+            accent-color: var(--cyan);
+            cursor: pointer;
+        }
+
+        #glitch-overlay {
+            position: fixed; inset: 0;
+            background: rgba(255, 0, 0, 0.2);
+            display: none; z-index: 100;
+            pointer-events: none;
+        }
+
+        h2 { margin: 0; font-size: 1.2rem; letter-spacing: 3px; }
+        .label { font-size: 0.7rem; opacity: 0.7; margin-top: 10px; display: block; }
     </style>
 </head>
 <body>
 
-    <div id="start-screen">
-        <div class="box">
-            <h1>STARK SYSTEM</h1>
-            <p id="load-status">SYSTEM CHECK: WAITING FOR LIBRARIES...</p>
-            <button id="main-btn" style="display:none;" onclick="boot()">INITIALIZE REACTOR</button>
-        </div>
+    <div id="glitch-overlay"></div>
+
+    <div id="top-header">
+        <h2>STARK INDUSTRIES v10.0</h2>
+        <div id="clock">00:00:00</div>
     </div>
 
-    <div id="ui">
-        <div id="left" class="panel">
-            <h3>MODELS</h3>
-            <button onclick="setM('reactor')">ARC MK1</button>
-            <button onclick="setM('nano')">NANO</button>
-        </div>
-        <div id="right" class="panel">
-            <h3>STATUS</h3>
-            <p>TRACKING: <span id="stat">OFFLINE</span></p>
-        </div>
-        <div id="msg">OVERLOAD</div>
-        <video id="v" autoplay playsinline></video>
+    <div id="control-panel" class="hud-panel">
+        <span class="label">CORE CONFIGURATION</span>
+        <button class="stark-btn" onclick="changeShape('ring')">Multi-Ring Core</button>
+        <button class="stark-btn" onclick="changeShape('sphere')">Nano Sphere</button>
+        
+        <span class="label">ENERGY OUTPUT</span>
+        <input type="range" min="0.5" max="3" step="0.1" value="1" oninput="adjustEnergy(this.value)">
+        
+        <button class="stark-btn danger" onclick="triggerOverload()">INITIATE OVERLOAD</button>
+    </div>
+
+    <div id="stats-panel" class="hud-panel">
+        <h3>DIAGNOSTICS</h3>
+        <p>STABILITY: <span id="stab-val">100%</span></p>
+        <p>TEMP: <span id="temp-val">2400 K</span></p>
+        <p>POWER: <span id="pwr-val">ONLINE</span></p>
+        <button class="stark-btn" onclick="nextColor()">NEXT THEME</button>
     </div>
 
     <script>
-        // Check if libraries are loaded
-        const checkInterval = setInterval(() => {
-            if (window.Hands && window.Camera && window.THREE) {
-                document.getElementById('load-status').innerText = "SYSTEM READY";
-                document.getElementById('main-btn').style.display = "block";
-                clearInterval(checkInterval);
-            }
-        }, 500);
+        let scene, camera, renderer, group, clock;
+        let isOverload = false, colorIdx = 0, currentShape = 'ring';
+        const colors = [0x00f2ff, 0xff3333, 0xffcc00, 0x00ff88, 0x9900ff];
 
-        let s, c, r, g, blast = false, mode = 'reactor';
-        
-        function boot() {
-            document.getElementById('start-screen').style.display = 'none';
-            document.getElementById('ui').style.display = 'block';
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            group = new THREE.Group();
+            scene.add(group);
+            camera.position.z = 10;
+
+            // Lights
+            const pLight = new THREE.PointLight(0xffffff, 1, 100);
+            pLight.position.set(5, 5, 10);
+            scene.add(pLight);
+
+            // Floor Grid
+            const grid = new THREE.GridHelper(20, 20, 0x00f2ff, 0x05111d);
+            grid.position.y = -5;
+            grid.material.opacity = 0.2;
+            grid.material.transparent = true;
+            scene.add(grid);
+
+            buildReactor();
+            animate();
+            updateClock();
+        }
+
+        function buildReactor() {
+            while(group.children.length > 0) group.remove(group.children[0]);
             
-            s = new THREE.Scene();
-            c = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-            r = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-            r.setSize(window.innerWidth, window.innerHeight);
-            document.body.appendChild(r.domElement);
-            g = new THREE.Group(); s.add(g); c.position.z = 10;
-            
-            const l = new THREE.PointLight(0xffffff, 1); l.position.set(0,0,10); s.add(l);
-            build(); loop();
-
-            const v = document.getElementById('v');
-            const h = new Hands({ locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}` });
-            h.setOptions({ maxNumHands: 1, minDetectionConfidence: 0.7 });
-
-            h.onResults((res) => {
-                const st = document.getElementById('stat');
-                if (res.multiHandLandmarks && res.multiHandLandmarks.length > 0) {
-                    st.innerText = "LOCKED"; st.style.color = "#00ff00";
-                    const lm = res.multiHandLandmarks[0];
-                    const d = Math.hypot(lm[8].x - lm[4].x, lm[8].y - lm[4].y) * 25;
-                    
-                    if(d > 14 && !blast) {
-                        blast = true; document.getElementById('msg').style.display = 'block';
-                        setTimeout(() => { blast = false; document.getElementById('msg').style.display='none'; build(); }, 2000);
-                    } else if(!blast) {
-                        g.children.forEach((obj, i) => {
-                            obj.scale.setScalar(1 + d * 0.1);
-                            obj.position.z = Math.sin(Date.now()*0.005 + i) * d;
-                        });
-                    }
-                    g.rotation.y = (lm[0].x - 0.5) * 4;
-                } else { st.innerText = "SEARCHING"; st.style.color = "orange"; }
+            const mat = new THREE.MeshPhongMaterial({
+                color: colors[colorIdx],
+                wireframe: true,
+                transparent: true,
+                opacity: 0.6,
+                emissive: colors[colorIdx],
+                emissiveIntensity: 0.5
             });
 
-            const cam = new Camera(v, { onFrame: async () => { await h.send({image: v}); }, width: 640, height: 480 });
-            cam.start();
-        }
-
-        function build() {
-            while(g.children.length > 0) g.remove(g.children[0]);
-            const m = new THREE.MeshPhongMaterial({ color: 0x00f2ff, wireframe: true, transparent: true, opacity: 0.6 });
-            if(mode === 'reactor') {
+            if(currentShape === 'ring') {
                 for(let i=0; i<10; i++) {
-                    const rng = new THREE.Mesh(new THREE.TorusGeometry(3, 0.05, 8, 40), m);
-                    rng.rotation.x = Math.PI/2; rng.position.y = (i-5)*0.4; g.add(rng);
+                    const ring = new THREE.Mesh(new THREE.TorusGeometry(3, 0.05, 12, 60), mat);
+                    ring.rotation.x = Math.PI/2;
+                    ring.position.y = (i-5) * 0.4;
+                    group.add(ring);
                 }
             } else {
-                g.add(new THREE.Mesh(new THREE.IcosahedronGeometry(3, 1), m));
+                const core = new THREE.Mesh(new THREE.IcosahedronGeometry(2.5, 1), mat);
+                const shell = new THREE.Mesh(new THREE.SphereGeometry(4, 15, 15), mat);
+                group.add(core, shell);
             }
         }
 
-        window.setM = (v) => { mode = v; build(); };
-        function loop() { requestAnimationFrame(loop); if(g && !blast) g.rotation.y += 0.01; if(r) r.render(s, c); }
+        // --- INTERACTION LOGIC ---
+        function adjustEnergy(val) {
+            group.scale.setScalar(val);
+            document.getElementById('temp-val').innerText = Math.floor(2400 * val) + " K";
+        }
+
+        function nextColor() {
+            colorIdx = (colorIdx + 1) % colors.length;
+            buildReactor();
+        }
+
+        function changeShape(type) {
+            currentShape = type;
+            buildReactor();
+        }
+
+        function triggerOverload() {
+            isOverload = true;
+            document.getElementById('glitch-overlay').style.display = 'block';
+            document.getElementById('stab-val').innerText = "ERROR";
+            document.getElementById('pwr-val').innerText = "UNSTABLE";
+            
+            group.children.forEach(c => {
+                c.position.set((Math.random()-0.5)*20, (Math.random()-0.5)*20, (Math.random()-0.5)*20);
+            });
+
+            setTimeout(() => {
+                isOverload = false;
+                document.getElementById('glitch-overlay').style.display = 'none';
+                document.getElementById('stab-val').innerText = "100%";
+                document.getElementById('pwr-val').innerText = "ONLINE";
+                buildReactor();
+            }, 2000);
+        }
+
+        // --- RENDER LOOP ---
+        function animate() {
+            requestAnimationFrame(animate);
+            if(!isOverload) {
+                group.rotation.y += 0.01;
+                group.rotation.x += 0.005;
+            }
+            renderer.render(scene, camera);
+        }
+
+        // --- UTILS ---
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString();
+            setTimeout(updateClock, 1000);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Mouse/Touch Drag to rotate
+        let isDragging = false, prevX, prevY;
+        window.addEventListener('mousedown', () => isDragging = true);
+        window.addEventListener('mouseup', () => isDragging = false);
+        window.addEventListener('mousemove', (e) => {
+            if(isDragging && !isOverload) {
+                group.rotation.y += e.movementX * 0.01;
+                group.rotation.x += e.movementY * 0.01;
+            }
+        });
+
+        init();
     </script>
 </body>
 </html>
