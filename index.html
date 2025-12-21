@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>STARK QUANTUM CORE | FINAL VERSION</title>
+    <title>STARK QUANTUM CORE | RESPONSIVE</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -11,56 +11,67 @@
 
     <style>
         :root { 
-            --cyan: #00f2ff; --red: #ff3333; --gold: #ffcc00;
-            --glass: rgba(0, 10, 20, 0.9);
+            --cyan: #00f2ff; --red: #ff3333;
+            --glass: rgba(0, 10, 20, 0.85);
         }
-        body { margin: 0; overflow: hidden; background: #000; font-family: 'Orbitron', sans-serif; color: var(--cyan); }
+        
+        * { box-sizing: border-box; }
 
-        /* --- ADVANCED HUD --- */
-        .hud { position: absolute; z-index: 100; pointer-events: none; text-transform: uppercase; }
+        body { 
+            margin: 0; overflow: hidden; background: #000; 
+            font-family: 'Orbitron', sans-serif; color: var(--cyan); 
+            height: 100vh; width: 100vw;
+        }
+
+        /* HUD positioning fix */
+        .hud { position: absolute; z-index: 100; pointer-events: none; text-transform: uppercase; width: 100%; }
         
         #top-nav {
-            top: 0; left: 0; width: 100%; height: 60px;
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 40px; box-sizing: border-box;
-            background: linear-gradient(to bottom, rgba(0,242,255,0.2), transparent);
-            border-bottom: 1px solid rgba(0,242,255,0.1);
+            top: 0; display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 20px; background: linear-gradient(to bottom, rgba(0,242,255,0.2), transparent);
+            border-bottom: 1px solid rgba(0,242,255,0.1); font-size: 0.8rem;
         }
 
         .side-panel {
-            top: 80px; width: 260px; background: var(--glass);
-            border: 1px solid rgba(0,242,255,0.3); padding: 20px;
-            pointer-events: all; backdrop-filter: blur(15px);
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            position: absolute; width: 180px; background: var(--glass);
+            border: 1px solid rgba(0,242,255,0.3); padding: 15px;
+            pointer-events: all; backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(0,0,0,0.5); font-size: 0.7rem;
         }
-        #left-p { left: 20px; border-left: 5px solid var(--cyan); }
-        #right-p { right: 20px; border-right: 5px solid var(--cyan); text-align: right; }
+        
+        /* Mobile responsive positions */
+        #left-p { top: 70px; left: 10px; border-left: 3px solid var(--cyan); }
+        #right-p { top: 70px; right: 10px; border-right: 3px solid var(--cyan); text-align: right; }
+
+        @media (max-width: 600px) {
+            .side-panel { width: 140px; padding: 10px; top: 60px; }
+            #top-nav { font-size: 0.6rem; padding: 5px 10px; }
+        }
 
         .stark-btn {
-            width: 100%; padding: 12px; margin: 8px 0;
+            width: 100%; padding: 10px; margin: 5px 0;
             background: rgba(0,242,255,0.05); border: 1px solid var(--cyan);
             color: var(--cyan); font-weight: 900; cursor: pointer;
-            transition: 0.3s; letter-spacing: 1px;
+            transition: 0.3s; font-size: 0.65rem;
         }
-        .stark-btn:hover { background: var(--cyan); color: #000; box-shadow: 0 0 20px var(--cyan); transform: scale(1.05); }
-        .danger-btn { border-color: var(--red); color: var(--red); margin-top: 20px; }
-        .danger-btn:hover { background: var(--red); color: #fff; box-shadow: 0 0 25px var(--red); }
+        .stark-btn:active { transform: scale(0.95); background: var(--cyan); color: #000; }
+        
+        .danger-btn { border-color: var(--red); color: var(--red); }
 
-        /* --- ANIMATIONS --- */
         .scanline {
-            width: 100%; height: 3px; background: var(--cyan);
-            position: absolute; opacity: 0.2; top: 0;
-            animation: scan 4s infinite linear;
+            width: 100%; height: 2px; background: var(--cyan);
+            position: absolute; opacity: 0.1; top: 0;
+            animation: scan 4s infinite linear; pointer-events: none;
         }
         @keyframes scan { 100% { top: 100%; } }
 
         #glitch-overlay {
-            position: fixed; inset: 0; background: rgba(255, 0, 0, 0.15);
+            position: fixed; inset: 0; background: rgba(255, 0, 0, 0.2);
             display: none; z-index: 200; pointer-events: none;
         }
 
-        .stat-box { font-size: 10px; margin: 10px 0; opacity: 0.8; }
-        .val { color: #fff; float: right; font-weight: bold; }
+        .stat-box { margin: 5px 0; opacity: 0.8; }
+        .val { color: #fff; font-weight: bold; display: block; }
     </style>
 </head>
 <body>
@@ -69,41 +80,40 @@
     <div class="scanline"></div>
 
     <div id="top-nav" class="hud">
-        <div style="font-weight: 900; letter-spacing: 3px;">QUANTUM CORE MK-LXXXV</div>
+        <div style="font-weight: 900;">CORE MK-LXXXV</div>
         <div id="timer">00:00:00</div>
     </div>
 
-    <div id="left-p" class="side-panel hud">
-        <h3 style="margin:0 0 15px 0">SYSTEMS</h3>
+    <div id="left-p" class="side-panel">
+        <h4 style="margin:0 0 10px 0">SYSTEMS</h4>
         <button class="stark-btn" onclick="updateMode('arc')">ARC MK-1</button>
         <button class="stark-btn" onclick="updateMode('nano')">NANO TECH</button>
-        <button class="stark-btn" onclick="updateMode('infinity')">INFINITY CORE</button>
+        <button class="stark-btn" onclick="updateMode('infinity')">INFINITY</button>
         
-        <div style="margin-top:20px;">
-            <label style="font-size: 9px;">ENERGY FLOW</label>
-            <input type="range" style="width:100%" min="0.5" max="3" step="0.1" oninput="setPower(this.value)">
+        <div style="margin-top:10px;">
+            <label style="font-size: 8px;">FLOW</label>
+            <input type="range" style="width:100%" min="0.5" max="2" step="0.1" oninput="setPower(this.value)">
         </div>
     </div>
 
-    <div id="right-p" class="side-panel hud">
-        <h3 style="margin:0 0 15px 0">DIAGNOSTICS</h3>
-        <div class="stat-box">CORE TEMP: <span class="val" id="t-val">2400 K</span></div>
-        <div class="stat-box">STABILITY: <span class="val" id="s-val" style="color:lawngreen">LOCKED</span></div>
-        <div class="stat-box">QUANTUM SYNC: <span class="val">98.2%</span></div>
+    <div id="right-p" class="side-panel">
+        <h4 style="margin:0 0 10px 0">DIAGS</h4>
+        <div class="stat-box">TEMP: <span class="val" id="t-val">2400 K</span></div>
+        <div class="stat-box">STAB: <span class="val" id="s-val" style="color:lawngreen">LOCKED</span></div>
         
-        <button class="stark-btn" style="margin-top:15px" onclick="nextColor()">SYNC THEME</button>
-        <button class="stark-btn danger-btn" onclick="quantumBlast()">QUANTUM BLAST</button>
+        <button class="stark-btn" style="margin-top:10px" onclick="nextColor()">SYNC</button>
+        <button class="stark-btn danger-btn" onclick="quantumBlast()">BLAST</button>
     </div>
 
     <script>
-        let scene, camera, renderer, controls, group, particles, pCount = 3000;
+        let scene, camera, renderer, controls, group, particles, pCount = 2000;
         let mode = 'arc', themeIdx = 0, isBlasting = false;
         const colors = [0x00f2ff, 0xffcc00, 0xff3333, 0x00ff88, 0x9900ff];
 
         function init() {
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 0, 15);
+            camera.position.set(0, 0, 12);
 
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
@@ -113,12 +123,10 @@
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.autoRotate = true;
-            controls.autoRotateSpeed = 1.5;
 
             group = new THREE.Group();
             scene.add(group);
 
-            // Light
             const pLight = new THREE.PointLight(0xffffff, 2);
             pLight.position.set(5, 5, 10);
             scene.add(pLight);
@@ -134,7 +142,7 @@
             const pos = new Float32Array(pCount * 3);
             for(let i=0; i<pCount*3; i++) pos[i] = (Math.random()-0.5) * 30;
             geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-            const mat = new THREE.PointsMaterial({ color: colors[themeIdx], size: 0.05, transparent: true, opacity: 0.8 });
+            const mat = new THREE.PointsMaterial({ color: colors[themeIdx], size: 0.05, transparent: true, opacity: 0.6 });
             particles = new THREE.Points(geo, mat);
             scene.add(particles);
         }
@@ -147,17 +155,17 @@
             });
 
             if(mode === 'arc') {
-                for(let i=0; i<15; i++) {
-                    const r = new THREE.Mesh(new THREE.TorusGeometry(3.5, 0.05, 12, 60), mat);
-                    r.rotation.x = Math.PI/2; r.position.y = (i-7.5)*0.35;
+                for(let i=0; i<10; i++) {
+                    const r = new THREE.Mesh(new THREE.TorusGeometry(3, 0.05, 12, 40), mat);
+                    r.rotation.x = Math.PI/2; r.position.y = (i-5)*0.4;
                     group.add(r);
                 }
             } else if(mode === 'nano') {
-                group.add(new THREE.Mesh(new THREE.OctahedronGeometry(3, 2), mat));
-                group.add(new THREE.Mesh(new THREE.IcosahedronGeometry(4.5, 1), mat));
+                group.add(new THREE.Mesh(new THREE.OctahedronGeometry(3, 1), mat));
+                group.add(new THREE.Mesh(new THREE.IcosahedronGeometry(4, 1), mat));
             } else {
-                for(let i=0; i<40; i++) {
-                    const r = new THREE.Mesh(new THREE.TorusGeometry(i*0.12, 0.02, 4, 32), mat);
+                for(let i=0; i<30; i++) {
+                    const r = new THREE.Mesh(new THREE.TorusGeometry(i*0.1, 0.02, 4, 32), mat);
                     r.rotation.x = Math.PI/2; group.add(r);
                 }
             }
@@ -166,22 +174,19 @@
         function quantumBlast() {
             if(isBlasting) return;
             isBlasting = true;
-            if(navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 300]);
+            if(navigator.vibrate) navigator.vibrate([100, 300]);
 
             document.getElementById('glitch-overlay').style.display = 'block';
             document.getElementById('s-val').innerText = 'CRITICAL';
             document.getElementById('s-val').style.color = 'red';
 
-            // Fragmentation Animation
-            group.children.forEach((c, i) => {
-                c.position.set((Math.random()-0.5)*60, (Math.random()-0.5)*60, (Math.random()-0.5)*60);
-                c.rotation.set(Math.random()*10, Math.random()*10, Math.random()*10);
+            group.children.forEach(c => {
+                c.position.set((Math.random()-0.5)*50, (Math.random()-0.5)*50, (Math.random()-0.5)*50);
                 c.scale.setScalar(0.1);
             });
 
-            // Particle Burst
             const positions = particles.geometry.attributes.position.array;
-            for(let i=0; i<pCount*3; i++) { positions[i] *= 5; }
+            for(let i=0; i<pCount*3; i++) { positions[i] *= 4; }
             particles.geometry.attributes.position.needsUpdate = true;
 
             setTimeout(() => {
@@ -189,13 +194,10 @@
                 document.getElementById('glitch-overlay').style.display = 'none';
                 document.getElementById('s-val').innerText = 'LOCKED';
                 document.getElementById('s-val').style.color = 'lawngreen';
-                
-                // Reset particles
                 for(let i=0; i<pCount*3; i++) { positions[i] = (Math.random()-0.5) * 30; }
                 particles.geometry.attributes.position.needsUpdate = true;
-                
                 buildCore();
-            }, 2000);
+            }, 1500);
         }
 
         function updateMode(m) { mode = m; buildCore(); }
@@ -212,10 +214,8 @@
         function animate() {
             requestAnimationFrame(animate);
             controls.update();
-            particles.rotation.y += 0.001;
             if(!isBlasting) {
-                group.rotation.y += 0.01;
-                group.rotation.x += 0.005;
+                group.rotation.y += 0.005;
             }
             renderer.render(scene, camera);
         }
