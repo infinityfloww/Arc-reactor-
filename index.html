@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Snap Particle Lab | 60 FPS</title>
+  <title>Premium Particle Lab | 60 FPS</title>
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
       width: 100%; height: 100%;
       overflow: hidden;
-      background: #03030a;
+      background: #020212;
       color: #fff;
       font-family: "Segoe UI", Arial, sans-serif;
       user-select: none;
@@ -29,10 +29,10 @@
       aspect-ratio: 4/3;
       z-index: 10;
       overflow: hidden;
-      border: 1px solid #ffffff25;
+      border: 1px solid #00ffff40;
       border-radius: 16px;
-      background: #080808;
-      box-shadow: 0 0 30px #00f0ff22;
+      background: #000011ee;
+      box-shadow: 0 0 30px #00ffff33;
     }
 
     #video, #handCanvas {
@@ -43,8 +43,8 @@
 
     #video {
       transform: scaleX(-1);
-      opacity: 0.5;
-      filter: saturate(1.2) contrast(1.1);
+      opacity: 0.6;
+      filter: saturate(1.4) contrast(1.2) brightness(1.1);
     }
 
     #handCanvas {
@@ -58,23 +58,23 @@
       z-index: 10;
       width: min(320px, calc(100vw - 28px));
       padding: 18px;
-      border: 1px solid #ffffff18;
+      border: 1px solid #00ffff30;
       border-radius: 20px;
-      background: rgba(8, 10, 24, 0.8);
+      background: rgba(5, 10, 30, 0.85);
       backdrop-filter: blur(18px);
-      box-shadow: 0 15px 60px #0006;
+      box-shadow: 0 15px 60px #000000aa;
     }
 
     h1 {
       font-size: 20px;
       font-weight: 800;
       letter-spacing: 1px;
-      background: linear-gradient(90deg, #00f0ff, #b829ff);
+      background: linear-gradient(90deg, #00ffff, #ff00ff);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
-    .subtitle { color: #9aa0b8; font-size: 11.5px; margin-top: 3px; }
+    .subtitle { color: #a0c0ff; font-size: 11.5px; margin-top: 3px; }
 
     .status {
       display: flex;
@@ -83,18 +83,18 @@
       font-size: 12.5px;
     }
 
-    .status span:first-child { color: #9aa0b8; }
+    .status span:first-child { color: #a0c0ff; }
     .status span:last-child {
       font-weight: 700;
-      color: #00f0ff;
-      text-shadow: 0 0 10px #00f0ff55;
+      color: #00ffff;
+      text-shadow: 0 0 10px #00ffff55;
     }
 
     #energy {
       height: 5px;
       margin-top: 10px;
       border-radius: 8px;
-      background: #ffffff15;
+      background: #001122;
       overflow: hidden;
     }
 
@@ -102,7 +102,7 @@
       width: 30%;
       height: 100%;
       border-radius: inherit;
-      background: linear-gradient(90deg, #b829ff, #00f0ff);
+      background: linear-gradient(90deg, #ff00ff, #00ffff);
       transition: width 0.08s linear;
     }
 
@@ -111,14 +111,14 @@
       gap: 14px;
       margin-top: 12px;
       font-size: 11px;
-      color: #9aa0b8;
+      color: #a0c0ff;
     }
 
     .metrics b { color: #fff; margin-left: 3px; }
 
     .help {
       margin-top: 14px;
-      color: #9aa0b8;
+      color: #a0c0ff;
       font-size: 11px;
       line-height: 1.6;
     }
@@ -126,7 +126,7 @@
     .help kbd {
       padding: 2px 5px;
       border-radius: 4px;
-      background: #ffffff18;
+      background: #00ffff22;
       font-family: inherit;
     }
 
@@ -145,10 +145,10 @@
 
     button {
       padding: 9px 13px;
-      border: 1px solid #ffffff25;
+      border: 1px solid #00ffff30;
       border-radius: 22px;
       color: #fff;
-      background: #121633cc;
+      background: #101530cc;
       cursor: pointer;
       font-size: 10.5px;
       font-weight: 700;
@@ -156,9 +156,9 @@
     }
 
     button:hover, button.active {
-      border-color: #00f0ff;
-      background: #1a2d55;
-      box-shadow: 0 0 16px #00f0ff44;
+      border-color: #00ffff;
+      background: #1a3050;
+      box-shadow: 0 0 16px #00ffff44;
     }
 
     #startScreen {
@@ -169,32 +169,32 @@
       justify-content: center;
       padding: 20px;
       background:
-        radial-gradient(circle at 30% 30%, #1a0f4a, transparent 45%),
-        radial-gradient(circle at 70% 70%, #0a2a4a, transparent 45%),
-        #03030a;
+        radial-gradient(circle at 30% 30%, #201050, transparent 45%),
+        radial-gradient(circle at 70% 70%, #102050, transparent 45%),
+        #020212;
     }
 
     .card {
       width: min(520px, 100%);
       padding: 34px;
-      border: 1px solid #ffffff25;
+      border: 1px solid #00ffff30;
       border-radius: 26px;
-      background: #0a0c1ce8;
+      background: #050a20e8;
       text-align: center;
-      box-shadow: 0 25px 100px #0008;
+      box-shadow: 0 25px 100px #000000cc;
     }
 
     .card h2 {
       font-size: clamp(32px, 7vw, 58px);
       line-height: 0.9;
-      background: linear-gradient(135deg, #fff, #00f0ff);
+      background: linear-gradient(135deg, #fff, #00ffff);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
     .card p {
       margin: 20px 0 24px;
-      color: #b8bcd0;
+      color: #c0d0ff;
       font-size: 14px;
       line-height: 1.65;
     }
@@ -205,8 +205,8 @@
       border-radius: 28px;
       font-size: 13px;
       font-weight: 800;
-      background: linear-gradient(135deg, #724cff, #00bfff);
-      box-shadow: 0 10px 35px #00bfff55;
+      background: linear-gradient(135deg, #8000ff, #00ffff);
+      box-shadow: 0 10px 35px #00ffff55;
     }
 
     #startButton:hover { transform: scale(1.04); }
@@ -218,16 +218,16 @@
       font-size: 11.5px;
     }
 
-    #snapIndicator {
+    #effectIndicator {
       position: fixed;
       top: 50%; left: 50%;
       transform: translate(-50%, -50%) scale(0);
       z-index: 20;
       padding: 14px 28px;
       border-radius: 30px;
-      background: #ffffff10;
-      border: 1px solid #00f0ff55;
-      color: #00f0ff;
+      background: #000022aa;
+      border: 1px solid #00ffff55;
+      color: #00ffff;
       font-size: 18px;
       font-weight: 800;
       letter-spacing: 2px;
@@ -236,7 +236,7 @@
       opacity: 0;
     }
 
-    #snapIndicator.show {
+    #effectIndicator.show {
       transform: translate(-50%, -50%) scale(1);
       opacity: 1;
     }
@@ -260,8 +260,8 @@
   </div>
 
   <section id="panel">
-    <h1>SNAP PARTICLE LAB</h1>
-    <div class="subtitle">Hand + Snap Detection Engine</div>
+    <h1>PREMIUM PARTICLE LAB</h1>
+    <div class="subtitle">Crystal Hand Tracking + 60 FPS</div>
 
     <div class="status"><span>Template</span><span id="template">HEART</span></div>
     <div class="status"><span>Gesture</span><span id="gestureDisplay">WAITING</span></div>
@@ -272,26 +272,27 @@
     <div class="metrics">
       <div class="metric">FPS<b id="fps">0</b></div>
       <div class="metric">Particles<b id="particleMetric">0</b></div>
-      <div class="metric">Snap<b id="snapMetric">OFF</b></div>
+      <div class="metric">State<b id="state">NORMAL</b></div>
     </div>
 
     <div class="help">
       <kbd>Open Palm</kbd> expand &nbsp; <kbd>Pinch</kbd> shrink<br>
       <kbd>Fist</kbd> burst &nbsp; <kbd>Swipe</kbd> change template<br>
-      <kbd>Snap</kbd> mic se particles destroy + reborn<br>
-      Mouse/touch bhi chalega.
+      <kbd>Dismantal</kbd> particles break &nbsp; <kbd>Rejoin</kbd> reform<br>
+      Press <kbd>D</kbd> for dismental, <kbd>R</kbd> for rejoin
     </div>
   </section>
 
   <div id="buttons"></div>
-  <div id="snapIndicator">SNAP!</div>
+  <div id="effectIndicator">DISMENTAL!</div>
 
   <div id="startScreen">
     <div class="card">
-      <h2>SNAP<br>PARTICLE LAB</h2>
+      <h2>PREMIUM<br>PARTICLE LAB</h2>
       <p>
-        Camera + microphone allow karo. Haath se control karo, aur chutki bajao —
-        particles destroy hoke naye shape mein reborn honge. 60 FPS smooth experience.
+        Premium crystal hand tracking with bone visualization. 
+        Control particles with gestures. Press D to dismental, R to rejoin.
+        Experience 60 FPS smoothness.
       </p>
       <button id="startButton">START EXPERIENCE</button>
       <div id="message"></div>
@@ -306,11 +307,10 @@
   <script>
     // ===== CONFIG =====
     const CONFIG = {
-      PARTICLE_COUNT: 7000,      // 60 FPS ke liye ideal
-      STAR_COUNT: 1000,
+      PARTICLE_COUNT: 8000,      // High quality with 60 FPS
+      STAR_COUNT: 1200,
       CAMERA_Z: 30,
-      BLOOM: false,              // bloom heavy hai, isliye band
-      SNAP_THRESHOLD: 0.72,      // mic loudness threshold
+      SNAP_THRESHOLD: 0.68,
       SNAP_COOLDOWN_MS: 900
     };
 
@@ -323,7 +323,7 @@
     const startScreen = document.getElementById("startScreen");
     const startButton = document.getElementById("startButton");
     const message = document.getElementById("message");
-    const snapIndicator = document.getElementById("snapIndicator");
+    const effectIndicator = document.getElementById("effectIndicator");
 
     const templateText = document.getElementById("template");
     const gestureText = document.getElementById("gestureDisplay");
@@ -331,7 +331,7 @@
     const energyBar = document.getElementById("energyBar");
     const fpsText = document.getElementById("fps");
     const particleMetric = document.getElementById("particleMetric");
-    const snapMetric = document.getElementById("snapMetric");
+    const stateText = document.getElementById("state");
     const buttons = document.getElementById("buttons");
 
     const templates = ["HEART", "FLOWER", "SATURN", "FIREWORKS", "GALAXY", "DNA", "ATOM", "VORTEX"];
@@ -353,19 +353,15 @@
     let swipeCooldown = 0;
     let previousSwipeX = null;
     let burstCooldown = 0;
-    let snapCooldown = 0;
-    let destroying = false;
+    let effectCooldown = 0;
+    let dismentalActive = false;
 
     // ===== FPS =====
     let lastFrameTime = performance.now();
     let fps = 60, frameCount = 0, lastFpsTime = performance.now();
 
-    // ===== AUDIO =====
-    let audioContext, analyser, micStream;
-
     // ===== HELPERS =====
     function randomRange(min, max) { return min + Math.random() * (max - min); }
-
     function lerp(a, b, t) { return a + (b - a) * t; }
 
     // ===== TEMPLATES =====
@@ -528,19 +524,19 @@
     // ===== INIT THREEJS =====
     function initThree() {
       scene = new THREE.Scene();
-      scene.fog = new THREE.FogExp2(0x03030a, 0.012);
+      scene.fog = new THREE.FogExp2(0x020212, 0.012);
 
       camera = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 0.1, 1000);
       camera.position.z = CONFIG.CAMERA_Z;
 
       renderer = new THREE.WebGLRenderer({
         canvas: sceneCanvas,
-        antialias: false,               // FPS ke liye band
+        antialias: false,
         powerPreference: "high-performance"
       });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1)); // mobile pe 60fps
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1));
       renderer.setSize(innerWidth, innerHeight);
-      renderer.setClearColor(0x03030a);
+      renderer.setClearColor(0x020212);
 
       // Particles
       positions = new Float32Array(CONFIG.PARTICLE_COUNT * 3);
@@ -561,7 +557,7 @@
       geometry.setAttribute("aSize", new THREE.BufferAttribute(sizes, 1));
       geometry.setAttribute("aPhase", new THREE.BufferAttribute(phases, 1));
 
-      // Soft glow texture banate hain bina external image ke
+      // Soft glow texture
       const canvas = document.createElement("canvas");
       canvas.width = 64; canvas.height = 64;
       const ctx = canvas.getContext("2d");
@@ -575,7 +571,7 @@
       const texture = new THREE.CanvasTexture(canvas);
 
       particleMaterial = new THREE.PointsMaterial({
-        color: 0x00f0ff,
+        color: 0x00ffff,
         size: 0.55,
         map: texture,
         transparent: true,
@@ -602,14 +598,15 @@
       animate();
     }
 
-    // ===== DESTROY + REBORN (SNAP) =====
-    function triggerSnapEffect() {
-      if (destroying || snapCooldown > 0) return;
-      snapCooldown = 45; // frames
-      destroying = true;
+    // ===== DISMENTAL EFFECT =====
+    function triggerDismantal() {
+      if (dismentalActive || effectCooldown > 0) return;
+      dismentalActive = true;
+      effectCooldown = 45;
       energy = 1;
+      stateText.textContent = "DISMENTAL";
 
-      // Sab particles ko bahar phenko
+      // Scatter particles
       for (let i = 0; i < CONFIG.PARTICLE_COUNT; i++) {
         const ix = i * 3;
         const dirX = positions[ix] + randomRange(-1, 1);
@@ -622,302 +619,414 @@
         velocities[ix+2] = (dirZ / len) * force;
       }
 
-      // UI flash
-      snapIndicator.classList.add("show");
-      setTimeout(() => snapIndicator.classList.remove("show"), 500);
+      effectIndicator.textContent = "DISMENTAL!";
+      effectIndicator.classList.add("show");
+      setTimeout(() => effectIndicator.classList.remove("show"), 500);
+    }
 
-      // 900ms baad naya template
-      setTimeout(() => {
-        setTemplate(currentTemplate + 1);
-        destroying = false;
-      }, 800);
+    function triggerRejoin() {
+      if (!dismentalActive || effectCooldown > 0) return;
+      dismentalActive = false;
+      effectCooldown = 45;
+      energy = 1;
+      stateText.textContent = "REJOIN";
+
+      // Reset targets to current template
+      targetPositions = getTemplate(currentTemplate);
+      templateText.textContent = templates[currentTemplate];
+      energy = Math.min(1, energy + 0.35);
+
+      [...buttons.children].forEach((button, i) => {
+        button.classList.toggle("active", i === currentTemplate);
+      });
+    }
+
+    function createButtons() {
+      buttons.innerHTML = "";
+      templates.forEach((name, index) => {
+        const button = document.createElement("button");
+        button.textContent = name;
+        button.addEventListener("click", () => setTemplate(index));
+        buttons.appendChild(button);
+      });
+    }
+
+    // ===== INIT THREEJS =====
+    function initThree() {
+      scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2(0x020212, 0.012);
+
+      camera = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 0.1, 1000);
+      camera.position.z = CONFIG.CAMERA_Z;
+
+      renderer = new THREE.WebGLRenderer({
+        canvas: sceneCanvas,
+        antialias: false,
+        powerPreference: "high-performance"
+      });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1));
+      renderer.setSize(innerWidth, innerHeight);
+      renderer.setClearColor(0x020212);
+
+      // Particles
+      positions = new Float32Array(CONFIG.PARTICLE_COUNT * 3);
+      velocities = new Float32Array(CONFIG.PARTICLE_COUNT * 3);
+      sizes = new Float32Array(CONFIG.PARTICLE_COUNT);
+      phases = new Float32Array(CONFIG.PARTICLE_COUNT);
+
+      targetPositions = getTemplate(0);
+      positions.set(targetPositions);
+
+      for (let i = 0; i < CONFIG.PARTICLE_COUNT; i++) {
+        sizes[i] = randomRange(0.6, 1.4);
+        phases[i] = Math.random() * Math.PI * 2;
+      }
+
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+      geometry.setAttribute("aSize", new THREE.BufferAttribute(sizes, 1));
+      geometry.setAttribute("aPhase", new THREE.BufferAttribute(phases, 1));
+
+      // Soft glow texture
+      const canvas = document.createElement("canvas");
+      canvas.width = 64; canvas.height = 64;
+      const ctx = canvas.getContext("2d");
+      const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+      grad.addColorStop(0, "rgba(255,255,255,1)");
+      grad.addColorStop(0.3, "rgba(255,255,255,0.6)");
+      grad.addColorStop(0.6, "rgba(255,255,255,0.15)");
+      grad.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 64, 64);
+      const texture = new THREE.CanvasTexture(canvas);
+
+      particleMaterial = new THREE.PointsMaterial({
+        color: 0x00ffff,
+        size: 0.55,
+        map: texture,
+        transparent: true,
+        opacity: 0.92,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+        sizeAttenuation: true
+      });
+
+      points = new THREE.Points(geometry, particleMaterial);
+      scene.add(points);
+
+      // Stars
+      const starPos = new Float32Array(CONFIG.STAR_COUNT * 3);
+      for (let i = 0; i < CONFIG.STAR_COUNT * 3; i++) starPos[i] = randomRange(-250, 250);
+      const starGeo = new THREE.BufferGeometry();
+      starGeo.setAttribute("position", new THREE.BufferAttribute(starPos, 3));
+      scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({
+        color: 0xffffff, size: 0.25, transparent: true, opacity: 0.28, depthWrite: false
+      })));
+
+      particleMetric.textContent = CONFIG.PARTICLE_COUNT.toLocaleString();
+      clock = new THREE.Clock();
+      animate();
+    }
+
+    // ===== DISMENTAL EFFECT =====
+    function triggerDismantal() {
+      if (dismentalActive || effectCooldown > 0) return;
+      dismentalActive = true;
+      effectCooldown = 45;
+      energy = 1;
+      stateText.textContent = "DISMENTAL";
+
+      // Scatter particles
+      for (let i = 0; i < CONFIG.PARTICLE_COUNT; i++) {
+        const ix = i * 3;
+        const dirX = positions[ix] + randomRange(-1, 1);
+        const dirY = positions[ix+1] + randomRange(-1, 1);
+        const dirZ = positions[ix+2] + randomRange(-1, 1);
+        const len = Math.sqrt(dirX*dirX + dirY*dirY + dirZ*dirZ) + 0.001;
+        const force = randomRange(8, 18);
+        velocities[ix] = (dirX / len) * force;
+        velocities[ix+1] = (dirY / len) * force;
+        velocities[ix+2] = (dirZ / len) * force;
+      }
+
+      effectIndicator.textContent = "DISMENTAL!";
+      effectIndicator.classList.add("show");
+      setTimeout(() => effectIndicator.classList.remove("show"), 500);
+    }
+
+    function triggerRejoin() {
+      if (!dismentalActive || effectCooldown > 0) return;
+      dismentalActive = false;
+      effectCooldown = 45;
+      energy = 1;
+      stateText.textContent = "REJOIN";
+
+      // Reset targets to current template
+      targetPositions = getTemplate(currentTemplate);
+
+      effectIndicator.textContent = "REJOIN!";
+      effectIndicator.classList.add("show");
+      setTimeout(() => effectIndicator.classList.remove("show"), 500);
     }
 
     function triggerBurst() {
       if (burstCooldown > 0) return;
       burstCooldown = 40;
-          energy = 1;
-    targetScale = 1.9;
+      energy = 1;
+      targetScale = 1.9;
 
-    for (let i = 0; i < CONFIG.PARTICLE_COUNT; i++) {
-      const ix = i * 3;
-      velocities[ix] += randomRange(-3.5, 3.5);
-      velocities[ix+1] += randomRange(-3.5, 3.5);
-      velocities[ix+2] += randomRange(-3.5, 3.5);
-    }
-
-    setTimeout(() => targetScale = 1, 280);
-  }
-
-  // ===== ANIMATE =====
-  function animate() {
-    requestAnimationFrame(animate);
-
-    const now = performance.now();
-    frameCount++;
-    if (now - lastFpsTime >= 500) {
-      fps = Math.round(frameCount * 1000 / (now - lastFpsTime));
-      fpsText.textContent = fps;
-      frameCount = 0;
-      lastFpsTime = now;
-    }
-
-    const time = clock.getElapsedTime();
-
-    currentScale = lerp(currentScale, targetScale, 0.09);
-
-    const speed = destroying ? 0.18 : (0.055 + energy * 0.035);
-    const spring = destroying ? 0 : (0.12 + energy * 0.07);
-    const damping = 0.86;
-
-    for (let i = 0; i < CONFIG.PARTICLE_COUNT; i++) {
-      const ix = i * 3, iy = ix + 1, iz = ix + 2;
-
-      if (!destroying) {
-        const tx = targetPositions[ix] * currentScale;
-        const ty = targetPositions[iy] * currentScale;
-        const tz = targetPositions[iz] * currentScale;
-
-        const noiseX = Math.sin(time * 0.5 + phases[i]) * 0.012 * (1 - energy * 0.5);
-        const noiseY = Math.cos(time * 0.4 + phases[i]) * 0.012 * (1 - energy * 0.5);
-
-        velocities[ix] += (tx - positions[ix]) * spring + noiseX;
-        velocities[iy] += (ty - positions[iy]) * spring + noiseY;
-        velocities[iz] += (tz - positions[iz]) * spring;
+      for (let i = 0; i < CONFIG.PARTICLE_COUNT; i++) {
+        const ix = i * 3;
+        velocities[ix] += randomRange(-3.5, 3.5);
+        velocities[ix+1] += randomRange(-3.5, 3.5);
+        velocities[ix+2] += randomRange(-3.5, 3.5);
       }
 
-      velocities[ix] *= damping;
-      velocities[iy] *= damping;
-      velocities[iz] *= damping;
-
-      positions[ix] += velocities[ix] * speed;
-      positions[iy] += velocities[iy] * speed;
-      positions[iz] += velocities[iz] * speed;
+      setTimeout(() => targetScale = 1, 280);
     }
 
-    points.geometry.attributes.position.needsUpdate = true;
+    // ===== ANIMATE =====
+    function animate() {
+      requestAnimationFrame(animate);
 
-    points.rotation.y += 0.0018 + (handX - 0.5) * 0.014;
-    points.rotation.x += (handY - 0.5) * 0.007;
-    points.rotation.z = Math.sin(time * 0.25) * 0.05;
+      const now = performance.now();
+      frameCount++;
+      if (now - lastFpsTime >= 500) {
+        fps = Math.round(frameCount * 1000 / (now - lastFpsTime));
+        fpsText.textContent = fps;
+        frameCount = 0;
+        lastFpsTime = now;
+      }
 
-    const hue = (time * 0.03 + currentTemplate * 0.12) % 1;
-    particleMaterial.color.setHSL(hue, 0.95, 0.62);
-    particleMaterial.size = 0.45 + energy * 0.35;
+      const time = clock.getElapsedTime();
 
-    energy *= 0.988;
-    energyBar.style.width = `${Math.max(6, energy * 100)}%`;
-    scaleText.textContent = `${currentScale.toFixed(2)}x`;
+      currentScale = lerp(currentScale, targetScale, 0.09);
 
-    if (burstCooldown > 0) burstCooldown--;
-    if (snapCooldown > 0) snapCooldown--;
+      const speed = dismentalActive ? 0.18 : (0.055 + energy * 0.035);
+      const spring = dismentalActive ? 0 : (0.12 + energy * 0.07);
+      const damping = 0.86;
 
-    renderer.render(scene, camera);
-  }
+      for (let i = 0; i < CONFIG.PARTICLE_COUNT; i++) {
+        const ix = i * 3, iy = ix + 1, iz = ix + 2;
 
-  // ===== HAND DETECTION =====
-  function distance(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+        if (!dismentalActive) {
+          const tx = targetPositions[ix] * currentScale;
+          const ty = targetPositions[iy] * currentScale;
+          const tz = targetPositions[iz] * currentScale;
 
-  function isFingerExtended(landmarks, tip, pip) {
-    return distance(landmarks[tip], landmarks[0]) > distance(landmarks[pip], landmarks[0]) * 1.12;
-  }
+          const noiseX = Math.sin(time * 0.5 + phases[i]) * 0.012 * (1 - energy * 0.5);
+          const noiseY = Math.cos(time * 0.4 + phases[i]) * 0.012 * (1 - energy * 0.5);
 
-  function detectGesture(landmarks) {
-    const index = isFingerExtended(landmarks, 8, 6);
-    const middle = isFingerExtended(landmarks, 12, 10);
-    const ring = isFingerExtended(landmarks, 16, 14);
-    const pinky = isFingerExtended(landmarks, 20, 18);
-    const pinch = distance(landmarks[4], landmarks[8]) / Math.max(0.06, distance(landmarks[0], landmarks[9]));
+          velocities[ix] += (tx - positions[ix]) * spring + noiseX;
+          velocities[iy] += (ty - positions[iy]) * spring + noiseY;
+          velocities[iz] += (tz - positions[iz]) * spring;
+        }
 
-    if (pinch < 0.42) return "PINCH";
-    if (index && middle && ring && pinky) return "OPEN PALM";
-    if (!index && !middle && !ring && !pinky) return "FIST";
-    if (index && middle && !ring && !pinky) return "VICTORY";
+        velocities[ix] *= damping;
+        velocities[iy] *= damping;
+        velocities[iz] *= damping;
 
-    return "TRACKING";
-  }
+        positions[ix] += velocities[ix] * speed;
+        positions[iy] += velocities[iy] * speed;
+        positions[iz] += velocities[iz] * speed;
+      }
 
-  function handleHands(results) {
-    const landmarks = results.multiHandLandmarks?.[0];
+      points.geometry.attributes.position.needsUpdate = true;
 
-    if (!landmarks) {
-      gestureText.textContent = "WAITING";
+      points.rotation.y += 0.0018 + (handX - 0.5) * 0.014;
+      points.rotation.x += (handY - 0.5) * 0.007;
+      points.rotation.z = Math.sin(time * 0.25) * 0.05;
+
+      const hue = (time * 0.03 + currentTemplate * 0.12) % 1;
+      particleMaterial.color.setHSL(hue, 0.95, 0.62);
+      particleMaterial.size = 0.45 + energy * 0.35;
+
+      energy *= 0.988;
+      energyBar.style.width = `${Math.max(6, energy * 100)}%`;
+      scaleText.textContent = `${currentScale.toFixed(2)}x`;
+
+      if (burstCooldown > 0) burstCooldown--;
+      if (effectCooldown > 0) effectCooldown--;
+
+      renderer.render(scene, camera);
+    }
+
+    // ===== HAND DETECTION =====
+    function distance(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+
+    function isFingerExtended(landmarks, tip, pip) {
+      return distance(landmarks[tip], landmarks[0]) > distance(landmarks[pip], landmarks[0]) * 1.12;
+    }
+
+    function detectGesture(landmarks) {
+      const index = isFingerExtended(landmarks, 8, 6);
+      const middle = isFingerExtended(landmarks, 12, 10);
+      const ring = isFingerExtended(landmarks, 16, 14);
+      const pinky = isFingerExtended(landmarks, 20, 18);
+      const pinch = distance(landmarks[4], landmarks[8]) / Math.max(0.06, distance(landmarks[0], landmarks[9]));
+
+      if (pinch < 0.42) return "PINCH";
+      if (index && middle && ring && pinky) return "OPEN PALM";
+      if (!index && !middle && !ring && !pinky) return "FIST";
+      if (index && middle && !ring && !pinky) return "VICTORY";
+
+      return "TRACKING";
+    }
+
+    function handleHands(results) {
+      const landmarks = results.multiHandLandmarks?.[0];
+
+      if (!landmarks) {
+        gestureText.textContent = "WAITING";
+        handCtx.clearRect(0, 0, handCanvas.width, handCanvas.height);
+        targetScale = 1;
+        previousSwipeX = null;
+        return;
+      }
+
+      // Crystal clear hand drawing with bone colors
       handCtx.clearRect(0, 0, handCanvas.width, handCanvas.height);
-      targetScale = 1;
-      previousSwipeX = null;
-      return;
+      
+      // Draw bones with cyan color
+      drawConnectors(handCtx, landmarks, HAND_CONNECTIONS, { 
+        color: "#00ffff", 
+        lineWidth: 3 
+      });
+      
+      // Draw joints with magenta
+      drawLandmarks(handCtx, landmarks, { 
+        color: "#ff00ff", 
+        lineWidth: 1, 
+        radius: 4 
+      });
+
+      handX = lerp(handX, 1 - landmarks[9].x, 0.18);
+      handY = lerp(handY, landmarks[9].y, 0.18);
+
+      const gesture = detectGesture(landmarks);
+      gestureText.textContent = gesture;
+
+      if (gesture === "PINCH") {
+        targetScale = 0.55;
+        energy = Math.min(1, energy + 0.02);
+      } else if (gesture === "OPEN PALM") {
+        targetScale = 1.6;
+        energy = Math.min(1, energy + 0.025);
+      } else if (gesture === "FIST") {
+        targetScale = 0.75;
+        energy = Math.min(1, energy + 0.03);
+        if (lastGesture !== "FIST") triggerBurst();
+      } else if (gesture === "VICTORY") {
+        targetScale = 1.1;
+      } else {
+        targetScale = 1;
+      }
+
+      lastGesture = gesture;
+
+      // Swipe detection
+      const swipeX = landmarks[9].x;
+      if (previousSwipeX !== null && swipeCooldown <= 0) {
+        const diff = swipeX - previousSwipeX;
+        if (Math.abs(diff) > 0.14) {
+          setTemplate(currentTemplate + (diff < 0 ? 1 : -1));
+          gestureText.textContent = "SWIPE";
+          energy = Math.min(1, energy + 0.4);
+          swipeCooldown = 28;
+        }
+      }
+      previousSwipeX = swipeX;
+      if (swipeCooldown > 0) swipeCooldown--;
     }
 
-    handCtx.clearRect(0, 0, handCanvas.width, handCanvas.height);
-    drawConnectors(handCtx, landmarks, HAND_CONNECTIONS, { color: "#00f0ff", lineWidth: 2 });
-    drawLandmarks(handCtx, landmarks, { color: "#ff2a9d", lineWidth: 1, radius: 3 });
+    // ===== CAMERA START =====
+    async function startCamera() {
+      if (cameraStarted) return;
 
-    handX = lerp(handX, 1 - landmarks[9].x, 0.18);
-    handY = lerp(handY, landmarks[9].y, 0.18);
+      if (!navigator.mediaDevices?.getUserMedia) {
+        message.textContent = "Camera support nahi hai.";
+        return;
+      }
 
-    const gesture = detectGesture(landmarks);
-    gestureText.textContent = gesture;
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 30, max: 30 } },
+          audio: false
+        });
 
-    if (gesture === "PINCH") {
-      targetScale = 0.55;
-      energy = Math.min(1, energy + 0.02);
-    } else if (gesture === "OPEN PALM") {
-      targetScale = 1.6;
-      energy = Math.min(1, energy + 0.025);
-    } else if (gesture === "FIST") {
-      targetScale = 0.75;
-      energy = Math.min(1, energy + 0.03);
-      if (lastGesture !== "FIST") triggerBurst();
-    } else if (gesture === "VICTORY") {
-      targetScale = 1.1;
-    } else {
-      targetScale = 1;
-    }
+        video.srcObject = stream;
+        await video.play();
 
-    lastGesture = gesture;
+        const hands = new Hands({
+          locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+        });
 
-    const swipeX = landmarks[9].x;
-    if (previousSwipeX !== null && swipeCooldown <= 0) {
-      const diff = swipeX - previousSwipeX;
-      if (Math.abs(diff) > 0.14) {
-        setTemplate(currentTemplate + (diff < 0 ? 1 : -1));
-        gestureText.textContent = "SWIPE";
-        energy = Math.min(1, energy + 0.4);
-        swipeCooldown = 28;
+        hands.setOptions({
+          maxNumHands: 1,
+          modelComplexity: 1,
+          minDetectionConfidence: 0.65,
+          minTrackingConfidence: 0.6
+        });
+
+        hands.onResults(handleHands);
+
+        const handCamera = new Camera(video, {
+          onFrame: async () => { if (video.readyState >= 2) await hands.send({ image: video }); },
+          width: 640, height: 480
+        });
+
+        handCamera.start();
+
+        cameraStarted = true;
+        startScreen.style.display = "none";
+      } catch (error) {
+        message.textContent = "Camera failed. HTTPS/localhost + permission check karein.";
+        console.error(error);
       }
     }
-    previousSwipeX = swipeX;
-    if (swipeCooldown > 0) swipeCooldown--;
-  }
 
-  // ===== SNAP DETECTION (MIC) =====
-  async function initAudio() {
-    try {
-      audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      analyser = audioContext.createAnalyser();
-      analyser.fftSize = 256;
-      micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const source = audioContext.createMediaStreamSource(micStream);
-      source.connect(analyser);
-      snapMetric.textContent = "ON";
-      detectSnap();
-    } catch (err) {
-      snapMetric.textContent = "ERR";
-      console.warn("Mic access failed:", err);
-    }
-  }
-
-  function detectSnap() {
-    if (!analyser) return;
-
-    const data = new Uint8Array(analyser.frequencyBinCount);
-    analyser.getByteFrequencyData(data);
-
-    let highFreqEnergy = 0;
-    const start = Math.floor(data.length * 0.6);
-    for (let i = start; i < data.length; i++) highFreqEnergy += data[i];
-    highFreqEnergy /= (data.length - start);
-
-    const normalized = highFreqEnergy / 255;
-
-    if (normalized > CONFIG.SNAP_THRESHOLD && snapCooldown <= 0) {
-      triggerSnapEffect();
+    // ===== RESIZE & INPUT =====
+    function resize() {
+      if (!camera || !renderer) return;
+      camera.aspect = innerWidth / innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(innerWidth, innerHeight);
     }
 
-    requestAnimationFrame(detectSnap);
-  }
-
-  // ===== CAMERA START =====
-  async function startCamera() {
-    if (cameraStarted) return;
-
-    if (!navigator.mediaDevices?.getUserMedia) {
-      message.textContent = "Camera support nahi hai.";
-      return;
+    function resizeHandCanvas() {
+      handCanvas.width = video.videoWidth || 640;
+      handCanvas.height = video.videoHeight || 480;
     }
 
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 30, max: 30 } },
-        audio: false
-      });
-
-      video.srcObject = stream;
-      await video.play();
-
-      const hands = new Hands({
-        locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
-      });
-
-      hands.setOptions({
-        maxNumHands: 1,
-        modelComplexity: 1,
-        minDetectionConfidence: 0.65,
-        minTrackingConfidence: 0.6
-      });
-
-      hands.onResults(handleHands);
-
-      const handCamera = new Camera(video, {
-        onFrame: async () => { if (video.readyState >= 2) await hands.send({ image: video }); },
-        width: 640, height: 480
-      });
-
-      handCamera.start();
-      await initAudio();
-
-      cameraStarted = true;
-      startScreen.style.display = "none";
-    } catch (error) {
-      message.textContent = "Camera/mic failed. HTTPS/localhost + permission check karein.";
-      console.error(error);
+    function mouseFallback(e) {
+      if (cameraStarted) return;
+      handX = lerp(handX, e.clientX / innerWidth, 0.12);
+      handY = lerp(handY, e.clientY / innerHeight, 0.12);
     }
-  }
 
-  // ===== RESIZE & INPUT =====
-  function resize() {
-    if (!camera || !renderer) return;
-    camera.aspect = innerWidth / innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(innerWidth, innerHeight);
-  }
+    function touchFallback(e) {
+      if (cameraStarted || !e.touches[0]) return;
+      handX = lerp(handX, e.touches[0].clientX / innerWidth, 0.12);
+      handY = lerp(handY, e.touches[0].clientY / innerHeight, 0.12);
+    }
 
-  function resizeHandCanvas() {
-    handCanvas.width = video.videoWidth || 640;
-    handCanvas.height = video.videoHeight || 480;
-  }
+    startButton.addEventListener("click", startCamera);
+    video.addEventListener("loadedmetadata", resizeHandCanvas);
+    window.addEventListener("resize", resize);
+    window.addEventListener("mousemove", mouseFallback);
+    window.addEventListener("touchmove", touchFallback, { passive: true });
 
-  function mouseFallback(e) {
-    if (cameraStarted) return;
-    handX = lerp(handX, e.clientX / innerWidth, 0.12);
-    handY = lerp(handY, e.clientY / innerHeight, 0.12);
-  }
+    window.addEventListener("keydown", e => {
+      if (e.key === "ArrowRight") setTemplate(currentTemplate + 1);
+      if (e.key === "ArrowLeft") setTemplate(currentTemplate - 1);
+      if (e.code === "Space") triggerBurst();
+      if (e.key === "d" || e.key === "D") triggerDismantal();
+      if (e.key === "r" || e.key === "R") triggerRejoin();
+    });
 
-  function touchFallback(e) {
-    if (cameraStarted || !e.touches[0]) return;
-    handX = lerp(handX, e.touches[0].clientX / innerWidth, 0.12);
-    handY = lerp(handY, e.touches[0].clientY / innerHeight, 0.12);
-  }
-
-  startButton.addEventListener("click", startCamera);
-  video.addEventListener("loadedmetadata", resizeHandCanvas);
-  window.addEventListener("resize", resize);
-  window.addEventListener("mousemove", mouseFallback);
-  window.addEventListener("touchmove", touchFallback, { passive: true });
-
-  window.addEventListener("keydown", e => {
-    if (e.key === "ArrowRight") setTemplate(currentTemplate + 1);
-    if (e.key === "ArrowLeft") setTemplate(currentTemplate - 1);
-    if (e.code === "Space") triggerBurst();
-    if (e.key === "s" || e.key === "S") triggerSnapEffect();
-  });
-
-  createButtons();
-  initThree();
-  setTemplate(0);
-</script>
+    createButtons();
+    initThree();
+    setTemplate(0);
+  </script>
 </body>
 </html>
-
-
-bruce banner
