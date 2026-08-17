@@ -3,17 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ultimate Hand Particle Lab</title>
+  <title>Hand Controlled Particle Lab</title>
 
   <style>
-    :root {
-      --cyan: #55ddff;
-      --purple: #855cff;
-      --pink: #ff45cc;
-      --green: #5dff9a;
-      --panel: rgba(8, 12, 32, .72);
-    }
-
     * {
       box-sizing: border-box;
       margin: 0;
@@ -25,25 +17,12 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      color: white;
       background: #020208;
+      color: white;
       font-family: Arial, sans-serif;
     }
 
-    body::after {
-      position: fixed;
-      inset: 0;
-      z-index: 5;
-      pointer-events: none;
-      content: "";
-      background:
-        linear-gradient(90deg, transparent 49.9%, #55ddff08 50%, transparent 50.1%),
-        linear-gradient(0deg, transparent 49.9%, #55ddff06 50%, transparent 50.1%);
-      background-size: 90px 90px;
-      mask-image: radial-gradient(circle, black, transparent 78%);
-    }
-
-    #scene {
+    canvas#scene {
       position: fixed;
       inset: 0;
       width: 100%;
@@ -55,23 +34,14 @@
       position: fixed;
       top: 16px;
       right: 16px;
-      z-index: 12;
-      width: 230px;
+      width: 220px;
       aspect-ratio: 16 / 10;
+      z-index: 10;
       overflow: hidden;
-      border: 1px solid #ffffff35;
-      border-radius: 18px;
-      background: #101018;
-      box-shadow: 0 12px 45px #0009;
-    }
-
-    #cameraBox::after {
-      position: absolute;
-      inset: 8px;
-      border: 1px solid #55ddff66;
-      border-radius: 11px;
-      pointer-events: none;
-      content: "";
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 16px;
+      background: #111;
+      box-shadow: 0 10px 40px #0008;
     }
 
     #video,
@@ -83,181 +53,141 @@
       object-fit: cover;
     }
 
-    #video,
-    #handCanvas {
-      transform: scaleX(-1);
-    }
-
     #video {
-      opacity: .68;
-      filter: saturate(1.25) contrast(1.1);
+      transform: scaleX(-1);
+      opacity: .75;
     }
 
     #handCanvas {
       pointer-events: none;
     }
 
-    #cameraStatus {
-      position: absolute;
-      right: 12px;
-      bottom: 10px;
-      z-index: 2;
-      color: var(--cyan);
-      font-size: 9px;
-      letter-spacing: 1px;
-    }
-
     #panel {
       position: fixed;
       top: 16px;
       left: 16px;
-      z-index: 12;
-      width: min(350px, calc(100vw - 32px));
-      padding: 20px;
-      border: 1px solid #ffffff25;
-      border-radius: 21px;
-      background: var(--panel);
-      backdrop-filter: blur(18px);
-      box-shadow: 0 15px 70px #0006;
+      z-index: 10;
+      width: min(330px, calc(100vw - 32px));
+      padding: 18px;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 18px;
+      background: rgba(10, 12, 30, .72);
+      backdrop-filter: blur(15px);
     }
 
     h1 {
-      margin-bottom: 5px;
-      color: #fff;
-      font-size: 21px;
-      letter-spacing: 1.5px;
+      font-size: 20px;
+      margin-bottom: 6px;
     }
 
     .subtitle,
     .help {
-      color: #afb5c8;
+      color: #aaa;
       font-size: 12px;
-      line-height: 1.55;
-    }
-
-    .badge {
-      display: inline-block;
-      margin: 10px 0 4px;
-      padding: 5px 9px;
-      border: 1px solid #55ddff66;
-      border-radius: 12px;
-      color: var(--cyan);
-      font-size: 9px;
-      letter-spacing: 1.2px;
+      line-height: 1.5;
     }
 
     .status {
       display: flex;
       justify-content: space-between;
-      margin-top: 14px;
+      margin-top: 15px;
       font-size: 13px;
     }
 
     .status span:last-child {
-      color: var(--cyan);
       font-weight: bold;
+      color: #55ddff;
     }
 
     #energy {
-      height: 7px;
-      margin-top: 9px;
+      height: 6px;
+      margin-top: 8px;
       overflow: hidden;
       border-radius: 10px;
-      background: #ffffff1c;
+      background: #ffffff20;
     }
 
     #energyBar {
-      width: 25%;
+      width: 30%;
       height: 100%;
       border-radius: inherit;
-      background: linear-gradient(90deg, var(--purple), var(--cyan), var(--pink));
-      box-shadow: 0 0 12px var(--cyan);
-      transition: width .15s linear;
-    }
-
-    .help {
-      margin-top: 15px;
+      background: linear-gradient(90deg, #714cff, #00ddff, #ff45cc);
     }
 
     #buttons {
       position: fixed;
       bottom: 18px;
       left: 50%;
-      z-index: 12;
+      z-index: 10;
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       gap: 8px;
-      width: min(900px, calc(100vw - 20px));
+      width: min(800px, calc(100vw - 20px));
       transform: translateX(-50%);
     }
 
     button {
-      border: 1px solid #ffffff30;
-      border-radius: 23px;
       padding: 10px 14px;
+      border: 1px solid #ffffff30;
+      border-radius: 22px;
       color: white;
       background: #10152dcc;
       cursor: pointer;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: bold;
-      transition: .2s ease;
     }
 
     button:hover,
     button.active {
-      border-color: var(--cyan);
-      background: #1b405d;
-      box-shadow: 0 0 18px #55ddff55;
-      transform: translateY(-2px);
+      border-color: #55ddff;
+      background: #1d3b55;
     }
 
     #startScreen {
       position: fixed;
       inset: 0;
-      z-index: 30;
+      z-index: 20;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 20px;
       background:
-        radial-gradient(circle at 50% 45%, #34256d, transparent 40%),
+        radial-gradient(circle at center, #28205c, transparent 40%),
         #020208;
     }
 
     .card {
-      width: min(570px, 100%);
-      padding: 34px;
-      border: 1px solid #ffffff28;
-      border-radius: 27px;
-      background: #0c0e20e8;
+      width: min(540px, 100%);
+      padding: 30px;
+      border: 1px solid #ffffff25;
+      border-radius: 24px;
+      background: #0c0e20dd;
       text-align: center;
-      box-shadow: 0 25px 110px #000b;
+      box-shadow: 0 25px 100px #0008;
     }
 
     .card h2 {
-      font-size: clamp(34px, 8vw, 64px);
-      line-height: .9;
-      letter-spacing: 2px;
+      font-size: clamp(30px, 8vw, 58px);
+      line-height: .95;
     }
 
     .card p {
-      margin: 20px 0 24px;
-      color: #c4c7d5;
+      margin: 18px 0 22px;
+      color: #bbb;
       font-size: 14px;
-      line-height: 1.65;
+      line-height: 1.6;
     }
 
     #startButton {
       border: 0;
-      padding: 15px 24px;
-      background: linear-gradient(135deg, #754dff, #00c4ff);
-      box-shadow: 0 0 30px #6755ff66;
+      padding: 14px 20px;
+      background: linear-gradient(135deg, #724cff, #00bfff);
     }
 
     #message {
       min-height: 18px;
-      margin-top: 13px;
+      margin-top: 12px;
       color: #ffb0b0;
       font-size: 12px;
     }
@@ -265,13 +195,13 @@
     @media (max-width: 600px) {
       #cameraBox {
         top: auto;
+        bottom: 75px;
         right: 10px;
-        bottom: 76px;
         width: 145px;
       }
 
       #panel {
-        width: 235px;
+        width: 230px;
         padding: 13px;
       }
 
@@ -283,11 +213,6 @@
       .help {
         font-size: 10px;
       }
-
-      .status {
-        margin-top: 10px;
-        font-size: 11px;
-      }
     }
   </style>
 </head>
@@ -298,13 +223,11 @@
   <div id="cameraBox">
     <video id="video" autoplay muted playsinline></video>
     <canvas id="handCanvas"></canvas>
-    <div id="cameraStatus">CAMERA OFF</div>
   </div>
 
   <section id="panel">
-    <h1>ULTIMATE PARTICLE LAB</h1>
-    <div class="subtitle">AI Hand-Controlled Holographic Universe</div>
-    <div class="badge">REAL-TIME MOTION ENGINE</div>
+    <h1>HYPER PARTICLE LAB</h1>
+    <div class="subtitle">Camera Hand Tracking Particle System</div>
 
     <div class="status">
       <span>Template</span>
@@ -327,10 +250,8 @@
 
     <div class="help">
       Open palm = expand particles<br>
-      Pinch = shrink particles<br>
-      Fist = energy burst<br>
-      Victory sign = orbit mode<br>
-      Move hand = rotate universe<br>
+      Pinch thumb + index = shrink particles<br>
+      Move hand = rotate particles<br>
       Swipe left/right = change template
     </div>
   </section>
@@ -339,11 +260,10 @@
 
   <div id="startScreen">
     <div class="card">
-      <h2>ULTIMATE<br>PARTICLE LAB</h2>
+      <h2>HAND<br>PARTICLE LAB</h2>
       <p>
-        Camera permission allow karke apna haath camera ke saamne rakhein.
-        Open palm, pinch, fist, victory sign aur swipe gestures se particles
-        control karein.
+        Camera allow करने के बाद हाथ को camera के सामने रखें।
+        Open palm, pinch और swipe करके particles control करें।
       </p>
       <button id="startButton">START CAMERA</button>
       <div id="message"></div>
@@ -356,8 +276,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 
   <script>
-    const PARTICLE_COUNT = 14000;
-    const STAR_COUNT = 2600;
+    const PARTICLE_COUNT = 12000;
 
     const sceneCanvas = document.getElementById("scene");
     const video = document.getElementById("video");
@@ -367,7 +286,6 @@
     const startScreen = document.getElementById("startScreen");
     const startButton = document.getElementById("startButton");
     const message = document.getElementById("message");
-    const cameraStatus = document.getElementById("cameraStatus");
 
     const templateText = document.getElementById("template");
     const gestureText = document.getElementById("gesture");
@@ -375,41 +293,24 @@
     const energyBar = document.getElementById("energyBar");
     const buttons = document.getElementById("buttons");
 
-    const templates = [
-      "HEART",
-      "FLOWER",
-      "SATURN",
-      "FIREWORKS",
-      "GALAXY",
-      "DNA"
-    ];
-
-    let scene;
-    let camera;
-    let renderer;
+    const templates = ["HEART", "FLOWER", "SATURN", "FIREWORKS", "GALAXY", "DNA"];
+    let currentTemplate = 0;
+    let targetPositions;
+    let positions;
     let points;
-    let particleGeometry;
-    let particleMaterial;
-    let starField;
+    let material;
+    let renderer;
+    let camera;
     let clock;
 
-    let positions;
-    let targetPositions;
-    let currentTemplate = 0;
-
-    let handX = .5;
-    let handY = .5;
+    let handX = 0.5;
+    let handY = 0.5;
     let targetScale = 1;
     let currentScale = 1;
-    let energy = .25;
-    let orbitMode = false;
-    let cameraStarted = false;
-    let lastGesture = "WAITING";
-    let swipeHistory = [];
+    let energy = 0.25;
+    let previousSwipeX = null;
     let swipeCooldown = 0;
-    let burstPower = 0;
-
-    const color = new THREE.Color();
+    let cameraStarted = false;
 
     function randomRange(min, max) {
       return min + Math.random() * (max - min);
@@ -421,14 +322,16 @@
       for (let i = 0; i < PARTICLE_COUNT; i++) {
         const t = Math.random() * Math.PI * 2;
         const fill = Math.sqrt(Math.random());
+
         const x = 16 * Math.pow(Math.sin(t), 3);
-        const y = 13 * Math.cos(t) -
+        const y =
+          13 * Math.cos(t) -
           5 * Math.cos(2 * t) -
           2 * Math.cos(3 * t) -
           Math.cos(4 * t);
 
-        data[i * 3] = x * .38 * fill + randomRange(-.08, .08);
-        data[i * 3 + 1] = y * .38 * fill;
+        data[i * 3] = x * 0.38 * fill + randomRange(-.08, .08);
+        data[i * 3 + 1] = y * 0.38 * fill;
         data[i * 3 + 2] = randomRange(-2, 2) * fill;
       }
 
@@ -455,9 +358,11 @@
       const data = new Float32Array(PARTICLE_COUNT * 3);
 
       for (let i = 0; i < PARTICLE_COUNT; i++) {
-        if (i < PARTICLE_COUNT * .58) {
-          const theta = Math.random() * Math.PI * 2;
-          const phi = Math.acos(2 * Math.random() - 1);
+        if (i < PARTICLE_COUNT * .6) {
+          const u = Math.random();
+          const v = Math.random();
+          const theta = u * Math.PI * 2;
+          const phi = Math.acos(2 * v - 1);
           const radius = 3 * Math.cbrt(Math.random());
 
           data[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
@@ -505,7 +410,8 @@
       for (let i = 0; i < PARTICLE_COUNT; i++) {
         const radius = Math.pow(Math.random(), .65) * 10;
         const arm = Math.floor(Math.random() * arms);
-        const angle = arm * Math.PI * 2 / arms +
+        const angle =
+          arm * Math.PI * 2 / arms +
           radius * .65 +
           randomRange(-.35, .35);
 
@@ -556,7 +462,7 @@
       currentTemplate = (index + templates.length) % templates.length;
       targetPositions = getTemplate(currentTemplate);
       templateText.textContent = templates[currentTemplate];
-      energy = Math.min(1, energy + .3);
+      energy = Math.min(1, energy + .25);
 
       [...buttons.children].forEach((button, i) => {
         button.classList.toggle("active", i === currentTemplate);
@@ -574,7 +480,7 @@
 
     function initThree() {
       scene = new THREE.Scene();
-      scene.fog = new THREE.FogExp2(0x020208, .016);
+      scene.fog = new THREE.FogExp2(0x020208, .018);
 
       camera = new THREE.PerspectiveCamera(
         60,
@@ -586,123 +492,54 @@
 
       renderer = new THREE.WebGLRenderer({
         canvas: sceneCanvas,
-        antialias: true,
-        powerPreference: "high-performance"
+        antialias: true
       });
-
-      renderer.setPixelRatio(Math.min(devicePixelRatio, 1.7));
+      renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
       renderer.setSize(innerWidth, innerHeight);
 
       positions = new Float32Array(PARTICLE_COUNT * 3);
       targetPositions = getTemplate(0);
       positions.set(targetPositions);
 
-      const sizes = new Float32Array(PARTICLE_COUNT);
-      const phases = new Float32Array(PARTICLE_COUNT);
-
-      for (let i = 0; i < PARTICLE_COUNT; i++) {
-        sizes[i] = randomRange(.55, 1.45);
-        phases[i] = Math.random() * Math.PI * 2;
-      }
-
-      particleGeometry = new THREE.BufferGeometry();
-      particleGeometry.setAttribute(
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute(
         "position",
         new THREE.BufferAttribute(positions, 3)
       );
-      particleGeometry.setAttribute(
-        "aSize",
-        new THREE.BufferAttribute(sizes, 1)
-      );
-      particleGeometry.setAttribute(
-        "aPhase",
-        new THREE.BufferAttribute(phases, 1)
-      );
 
-      particleMaterial = new THREE.ShaderMaterial({
-        uniforms: {
-          uTime: { value: 0 },
-          uColor: { value: new THREE.Color("#55ddff") },
-          uSize: { value: 7 },
-          uScale: { value: 1 },
-          uBurst: { value: 0 }
-        },
-        vertexShader: `
-          attribute float aSize;
-          attribute float aPhase;
-
-          uniform float uTime;
-          uniform float uSize;
-          uniform float uScale;
-          uniform float uBurst;
-
-          varying float vGlow;
-
-          void main() {
-            vec3 p = position * uScale;
-            float wave = sin(uTime * 2.2 + aPhase) * .04;
-            p += normalize(position + .001) * wave;
-            p += normalize(position + .001) * uBurst * (sin(aPhase) * .5 + .5);
-
-            vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
-            gl_Position = projectionMatrix * mvPosition;
-
-            gl_PointSize = uSize * aSize * (180.0 / -mvPosition.z);
-            gl_PointSize = clamp(gl_PointSize, 1.0, 22.0);
-            vGlow = aSize;
-          }
-        `,
-        fragmentShader: `
-          uniform vec3 uColor;
-          varying float vGlow;
-
-          void main() {
-            vec2 point = gl_PointCoord - vec2(.5);
-            float d = length(point);
-
-            if (d > .5) discard;
-
-            float glow = smoothstep(.5, .02, d);
-            float core = smoothstep(.16, .0, d);
-
-            gl_FragColor = vec4(
-              uColor * (glow * .85 + core * 1.7),
-              glow * .95
-            );
-          }
-        `,
+      material = new THREE.PointsMaterial({
+        color: 0x55ddff,
+        size: .12,
         transparent: true,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending
+        opacity: .9,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
       });
 
-      points = new THREE.Points(particleGeometry, particleMaterial);
+      points = new THREE.Points(geometry, material);
       scene.add(points);
 
-      const starPositions = new Float32Array(STAR_COUNT * 3);
+      const starGeometry = new THREE.BufferGeometry();
+      const starPositions = new Float32Array(2500 * 3);
 
       for (let i = 0; i < starPositions.length; i++) {
         starPositions[i] = randomRange(-250, 250);
       }
 
-      const starGeometry = new THREE.BufferGeometry();
       starGeometry.setAttribute(
         "position",
         new THREE.BufferAttribute(starPositions, 3)
       );
 
-      starField = new THREE.Points(
+      scene.add(new THREE.Points(
         starGeometry,
         new THREE.PointsMaterial({
           color: 0xffffff,
-          size: .24,
+          size: .25,
           transparent: true,
-          opacity: .38,
-          depthWrite: false
+          opacity: .35
         })
-      );
-
-      scene.add(starField);
+      ));
 
       clock = new THREE.Clock();
       animate();
@@ -713,39 +550,23 @@
 
       const time = clock.getElapsedTime();
 
-      currentScale += (targetScale - currentScale) * .085;
-      burstPower *= .92;
-
-      particleMaterial.uniforms.uTime.value = time;
-      particleMaterial.uniforms.uScale.value = currentScale;
-      particleMaterial.uniforms.uBurst.value = burstPower;
+      currentScale += (targetScale - currentScale) * .08;
 
       for (let i = 0; i < positions.length; i++) {
         positions[i] +=
-          (targetPositions[i] * currentScale - positions[i]) * .085;
+          (targetPositions[i] * currentScale - positions[i]) * .08;
       }
 
-      particleGeometry.attributes.position.needsUpdate = true;
+      points.geometry.attributes.position.needsUpdate = true;
+      points.rotation.y += .002 + (handX - .5) * .012;
+      points.rotation.x += (handY - .5) * .006;
+      points.rotation.z = Math.sin(time * .3) * .08;
 
-      points.rotation.y += .0018 + (handX - .5) * .014;
-      points.rotation.x += (handY - .5) * .007;
-      points.rotation.z = Math.sin(time * .32) * .08;
+      material.size = .09 + energy * .08;
+      material.color.setHSL((time * .04 + currentTemplate * .13) % 1, .9, .65);
 
-      if (orbitMode) {
-        points.rotation.y += .008;
-        points.rotation.x += .002;
-      }
-
-      starField.rotation.y -= .00025;
-      starField.rotation.x = Math.sin(time * .08) * .08;
-
-      const hue = (time * .035 + currentTemplate * .13) % 1;
-      color.setHSL(hue, .92, .63);
-      particleMaterial.uniforms.uColor.value.copy(color);
-      particleMaterial.uniforms.uSize.value = 6.2 + energy * 4.2;
-
-      energy *= .988;
-      energyBar.style.width = `${Math.max(8, energy * 100)}%`;
+      energy *= .985;
+      energyBar.style.width = `${Math.max(10, energy * 100)}%`;
       scaleText.textContent = `${currentScale.toFixed(2)}x`;
 
       renderer.render(scene, camera);
@@ -755,36 +576,129 @@
       return Math.hypot(a.x - b.x, a.y - b.y);
     }
 
-    function fingerOpen(landmarks, tip, joint) {
-      return landmarks[tip].y < landmarks[joint].y;
-    }
-
     function isOpenPalm(landmarks) {
-      return [8, 12, 16, 20].every((tip, i) =>
-        fingerOpen(landmarks, tip, [6, 10, 14, 18][i])
+      const tips = [8, 12, 16, 20];
+      const joints = [6, 10, 14, 18];
+
+      return tips.every((tip, index) =>
+        landmarks[tip].y < landmarks[joints[index]].y
       );
     }
 
-    function isFist(landmarks) {
-      return [8, 12, 16, 20].every((tip, i) =>
-        !fingerOpen(landmarks, tip, [6, 10, 14, 18][i])
-      );
+    function drawHand(landmarks) {
+      handCtx.clearRect(0, 0, handCanvas.width, handCanvas.height);
+
+      if (!landmarks) return;
+
+      drawConnectors(handCtx, landmarks, HAND_CONNECTIONS, {
+        color: "#00eaff",
+        lineWidth: 2
+      });
+
+      drawLandmarks(handCtx, landmarks, {
+        color: "#ff4ecd",
+        lineWidth: 1,
+        radius: 3
+      });
     }
 
-    function isVictory(landmarks) {
-      return fingerOpen(landmarks, 8, 6) &&
-        fingerOpen(landmarks, 12, 10) &&
-        !fingerOpen(landmarks, 16, 14) &&
-        !fingerOpen(landmarks, 20, 18);
+    function handleHands(results) {
+      const landmarks = results.multiHandLandmarks?.[0];
+
+      if (!landmarks) {
+        gestureText.textContent = "NO HAND";
+        drawHand(null);
+        return;
+      }
+
+      drawHand(landmarks);
+
+      handX += ((1 - landmarks[9].x) - handX) * .2;
+      handY += (landmarks[9].y - handY) * .2;
+
+      const pinch = distance(landmarks[4], landmarks[8]) < .065;
+      const open = isOpenPalm(landmarks);
+
+      if (pinch) {
+        targetScale = .55;
+        gestureText.textContent = "PINCH";
+        energy = Math.min(1, energy + .015);
+      } else if (open) {
+        targetScale = 1.65;
+        gestureText.textContent = "OPEN PALM";
+        energy = Math.min(1, energy + .02);
+      } else {
+        targetScale = 1;
+        gestureText.textContent = "TRACKING";
+      }
+
+      const swipeX = landmarks[9].x;
+
+      if (previousSwipeX !== null && swipeCooldown <= 0) {
+        const difference = swipeX - previousSwipeX;
+
+        if (Math.abs(difference) > .12) {
+          setTemplate(currentTemplate + (difference < 0 ? 1 : -1));
+          swipeCooldown = 35;
+          gestureText.textContent = "SWIPE";
+        }
+      }
+
+      previousSwipeX = swipeX;
+      swipeCooldown--;
     }
 
-    function triggerBurst() {
-      energy = 1;
-      burstPower = 1;
-      targetScale = 1.9;
-    function resizeHandCanvas() {
-      handCanvas.width = video.videoWidth || 640;
-      handCanvas.height = video.videoHeight || 480;
+    async function startCamera() {
+      if (cameraStarted) return;
+
+      try {
+        message.textContent = "Camera permission requested...";
+
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: "user",
+            width: { ideal: 640 },
+            height: { ideal: 480 }
+          },
+          audio: false
+        });
+
+        video.srcObject = stream;
+        await video.play();
+
+        const hands = new Hands({
+          locateFile: file =>
+            `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+        });
+
+        hands.setOptions({
+          maxNumHands: 1,
+          modelComplexity: 1,
+          minDetectionConfidence: .65,
+          minTrackingConfidence: .6
+        });
+
+        hands.onResults(handleHands);
+
+        const handCamera = new Camera(video, {
+          onFrame: async () => {
+            if (video.readyState >= 2) {
+              await hands.send({ image: video });
+            }
+          },
+          width: 640,
+          height: 480
+        });
+
+        handCamera.start();
+
+        cameraStarted = true;
+        startScreen.style.display = "none";
+      } catch (error) {
+        message.textContent =
+          "Camera start nahi hua. HTTPS/localhost aur camera permission check karein.";
+        console.error(error);
+      }
     }
 
     function resize() {
@@ -795,34 +709,18 @@
       renderer.setSize(innerWidth, innerHeight);
     }
 
+    function resizeHandCanvas() {
+      handCanvas.width = video.videoWidth || 640;
+      handCanvas.height = video.videoHeight || 480;
+    }
+
     startButton.addEventListener("click", startCamera);
     video.addEventListener("loadedmetadata", resizeHandCanvas);
     window.addEventListener("resize", resize);
-
-    window.addEventListener("keydown", event => {
-      if (event.key === "ArrowRight") {
-        setTemplate(currentTemplate + 1);
-      }
-
-      if (event.key === "ArrowLeft") {
-        setTemplate(currentTemplate - 1);
-      }
-
-      if (event.code === "Space") {
-        triggerBurst();
-      }
-
-      if (event.key.toLowerCase() === "o") {
-        orbitMode = !orbitMode;
-        gestureText.textContent = orbitMode
-          ? "ORBIT MODE"
-          : "TRACKING";
-      }
-    });
 
     createButtons();
     initThree();
     setTemplate(0);
   </script>
 </body>
-</html>      
+</html>
