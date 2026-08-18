@@ -2,356 +2,357 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Particle Nexus Ultra</title>
+
   <style>
-    :root{
-      --cyan:#69f8ff;
-      --blue:#6d8dff;
-      --pink:#ff55d6;
-      --gold:#ffe69a;
-      --glass:rgba(5,10,28,.72);
-      --line:rgba(120,240,255,.24);
+    :root {
+      --cyan: #70f7ff;
+      --blue: #238dff;
+      --red: #ff315d;
+      --purple: #8d5cff;
+      --panel: rgba(6, 12, 32, .76);
+      --line: rgba(110, 235, 255, .24);
     }
 
-    *{box-sizing:border-box;margin:0;padding:0}
-    html,body{
-      width:100%;
-      height:100%;
-      overflow:hidden;
-      background:#01030c;
-      color:#fff;
-      font-family:Inter,Segoe UI,Arial,sans-serif;
-      user-select:none;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
-    #scene{
-      position:fixed;
-      inset:0;
-      width:100%;
-      height:100%;
-      display:block;
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      color: #fff;
+      background: #01030b;
+      font-family: Inter, Segoe UI, Arial, sans-serif;
+      user-select: none;
     }
 
-    #vignette{
-      position:fixed;
-      inset:0;
-      pointer-events:none;
+    button {
+      border: 1px solid #ffffff26;
+      border-radius: 999px;
+      padding: 10px 14px;
+      color: #fff;
+      background: #0d1837dd;
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .5px;
+      transition: .2s ease;
+    }
+
+    button:hover,
+    button.active {
+      border-color: var(--cyan);
+      background: #123c61;
+      box-shadow: 0 0 20px #00eaff55;
+      transform: translateY(-2px);
+    }
+
+    #scene {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    #vignette {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
       background:
-        radial-gradient(circle at 50% 48%,transparent 30%,rgba(0,0,15,.25) 70%,rgba(0,0,0,.75));
-      z-index:2;
+        radial-gradient(circle at center, transparent 28%, #02040c22 65%, #000b 100%);
     }
 
-    #cameraBox{
-      position:fixed;
-      z-index:20;
-      top:16px;
-      right:16px;
-      width:250px;
-      aspect-ratio:4/3;
-      overflow:hidden;
-      border:1px solid var(--line);
-      border-radius:20px;
-      background:#02040d;
-      box-shadow:0 0 0 1px #ffffff0c,0 18px 70px #000b,0 0 35px #00eaff26;
+    .glass {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      backdrop-filter: blur(20px) saturate(1.4);
+      box-shadow: 0 20px 80px #0009, inset 0 1px #ffffff12;
     }
 
-    #cameraBox::after{
-      content:"HAND SENSOR";
-      position:absolute;
-      left:12px;
-      bottom:10px;
-      color:var(--cyan);
-      font-size:9px;
-      letter-spacing:2px;
-      text-shadow:0 0 10px var(--cyan);
-      pointer-events:none;
+    #hud {
+      position: fixed;
+      top: 18px;
+      left: 18px;
+      z-index: 10;
+      width: min(350px, calc(100vw - 36px));
+      padding: 20px;
+      border-radius: 22px;
     }
 
-    #video,#handCanvas{
-      position:absolute;
-      inset:0;
-      width:100%;
-      height:100%;
-      object-fit:cover;
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
-    #video{
-      transform:scaleX(-1);
-      opacity:.48;
-      filter:contrast(1.2) saturate(1.3) brightness(1.12);
+    .orb {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 12px var(--cyan), 0 0 30px var(--cyan);
+      animation: pulse 1.3s infinite alternate;
     }
 
-    #handCanvas{
-      transform:scaleX(-1);
-      pointer-events:none;
+    @keyframes pulse {
+      from { transform: scale(.75); opacity: .65; }
+      to { transform: scale(1.15); opacity: 1; }
     }
 
-    #hud{
-      position:fixed;
-      z-index:20;
-      top:16px;
-      left:16px;
-      width:min(360px,calc(100vw - 32px));
-      padding:20px;
-      border:1px solid var(--line);
-      border-radius:24px;
-      background:var(--glass);
-      backdrop-filter:blur(20px) saturate(1.5);
-      box-shadow:0 20px 80px #0008, inset 0 1px #ffffff12;
+    h1 {
+      font-size: 19px;
+      letter-spacing: 2px;
+      background: linear-gradient(90deg, #fff, var(--cyan), var(--red));
+      -webkit-background-clip: text;
+      color: transparent;
     }
 
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:10px;
+    .subtitle {
+      margin-top: 5px;
+      color: #9eafd2;
+      font-size: 10px;
+      letter-spacing: .7px;
     }
 
-    .orb{
-      width:12px;
-      height:12px;
-      border-radius:50%;
-      background:var(--cyan);
-      box-shadow:0 0 8px var(--cyan),0 0 25px var(--cyan);
-      animation:pulse 1.4s infinite alternate;
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      margin-top: 15px;
+      font-size: 12px;
     }
 
-    @keyframes pulse{
-      from{transform:scale(.8);opacity:.65}
-      to{transform:scale(1.15);opacity:1}
+    .row label {
+      color: #91a6cc;
     }
 
-    h1{
-      font-size:20px;
-      letter-spacing:2px;
-      font-weight:900;
-      background:linear-gradient(90deg,#fff,var(--cyan),var(--pink));
-      -webkit-background-clip:text;
-      color:transparent;
+    .value {
+      color: var(--cyan);
+      font-weight: 800;
+      text-align: right;
+      text-shadow: 0 0 12px #00eaff55;
     }
 
-    .caption{
-      margin-top:5px;
-      color:#aebee8;
-      font-size:11px;
-      letter-spacing:.5px;
+    #energy {
+      height: 6px;
+      margin-top: 15px;
+      overflow: hidden;
+      border-radius: 20px;
+      background: #ffffff14;
     }
 
-    .row{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      margin-top:15px;
-      font-size:12px;
+    #energyBar {
+      width: 25%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--red), var(--purple), var(--cyan));
+      box-shadow: 0 0 16px var(--cyan);
+      transition: width .12s linear;
     }
 
-    .row label{color:#91a8d4}
-    .value{
-      color:var(--cyan);
-      font-weight:800;
-      text-shadow:0 0 12px #00eaff66;
-      text-align:right;
+    .help {
+      margin-top: 16px;
+      color: #9caed0;
+      font-size: 10px;
+      line-height: 1.7;
     }
 
-    #energy{
-      height:6px;
-      margin-top:12px;
-      border-radius:10px;
-      overflow:hidden;
-      background:#07152d;
+    #cameraBox {
+      position: fixed;
+      top: 18px;
+      right: 18px;
+      z-index: 10;
+      width: 245px;
+      aspect-ratio: 4 / 3;
+      overflow: hidden;
+      border-radius: 18px;
     }
 
-    #energyBar{
-      width:28%;
-      height:100%;
-      border-radius:inherit;
-      background:linear-gradient(90deg,var(--pink),var(--blue),var(--cyan));
-      box-shadow:0 0 15px var(--cyan);
-      transition:width .1s linear;
+    #cameraBox::after {
+      content: "HAND SENSOR";
+      position: absolute;
+      left: 12px;
+      bottom: 10px;
+      color: var(--cyan);
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-shadow: 0 0 12px var(--cyan);
+      pointer-events: none;
     }
 
-    .stats{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:7px;
-      margin-top:14px;
+    #video,
+    #handCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
-    .stat{
-      padding:8px 5px;
-      border:1px solid #ffffff12;
-      border-radius:10px;
-      background:#ffffff06;
-      text-align:center;
+    #video {
+      transform: scaleX(-1);
+      opacity: .45;
+      filter: contrast(1.2) saturate(1.35);
     }
 
-    .stat small{
-      display:block;
-      color:#8194bd;
-      font-size:9px;
+    #handCanvas {
+      transform: scaleX(-1);
+      pointer-events: none;
     }
 
-    .stat b{
-      display:block;
-      margin-top:3px;
-      color:#fff;
-      font-size:12px;
+    #controls {
+      position: fixed;
+      right: 18px;
+      bottom: 20px;
+      z-index: 10;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+      max-width: 350px;
+      padding: 9px;
+      border-radius: 18px;
     }
 
-    .help{
-      margin-top:15px;
-      color:#9eafd5;
-      font-size:10.5px;
-      line-height:1.7;
+    #templates {
+      position: fixed;
+      left: 50%;
+      bottom: 20px;
+      z-index: 10;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 7px;
+      width: min(650px, calc(100vw - 380px));
+      transform: translateX(-50%);
     }
 
-    kbd{
-      padding:2px 5px;
-      border:1px solid #ffffff22;
-      border-radius:4px;
-      color:#dffcff;
-      background:#ffffff0b;
-      font-family:inherit;
+    #templates button {
+      padding: 8px 11px;
+      font-size: 9px;
     }
 
-    #buttons{
-      position:fixed;
-      z-index:20;
-      bottom:18px;
-      left:50%;
-      width:min(1000px,calc(100vw - 20px));
-      display:flex;
-      justify-content:center;
-      flex-wrap:wrap;
-      gap:8px;
-      transform:translateX(-50%);
-    }
-
-    button{
-      border:1px solid #ffffff24;
-      border-radius:25px;
-      padding:10px 15px;
-      color:#fff;
-      background:#0c1630dd;
-      cursor:pointer;
-      font-size:10px;
-      font-weight:800;
-      letter-spacing:.3px;
-      transition:.2s ease;
-    }
-
-    button:hover,button.active{
-      border-color:var(--cyan);
-      background:#12395a;
-      box-shadow:0 0 20px #00eaff42;
-      transform:translateY(-2px);
-    }
-
-    #startScreen{
-      position:fixed;
-      inset:0;
-      z-index:50;
-      display:grid;
-      place-items:center;
-      padding:20px;
+    #startScreen {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      display: grid;
+      place-items: center;
+      padding: 20px;
       background:
-        radial-gradient(circle at 25% 25%,#271565 0,transparent 35%),
-        radial-gradient(circle at 75% 75%,#073d61 0,transparent 38%),
-        #01030c;
+        radial-gradient(circle at 25% 25%, #28165e, transparent 35%),
+        radial-gradient(circle at 75% 75%, #073d60, transparent 38%),
+        #01030b;
     }
 
-    .card{
-      width:min(560px,100%);
-      padding:38px 30px;
-      border:1px solid var(--line);
-      border-radius:30px;
-      background:rgba(5,9,29,.88);
-      box-shadow:0 30px 120px #000c,inset 0 1px #ffffff16;
-      text-align:center;
+    .card {
+      width: min(510px, 100%);
+      padding: 38px 30px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: #060c21e8;
+      text-align: center;
+      box-shadow: 0 30px 120px #000c;
     }
 
-    .card h2{
-      font-size:clamp(35px,8vw,72px);
-      line-height:.86;
-      letter-spacing:3px;
-      background:linear-gradient(135deg,#fff,var(--cyan),var(--pink));
-      -webkit-background-clip:text;
-      color:transparent;
+    .card h2 {
+      font-size: clamp(38px, 9vw, 70px);
+      line-height: .86;
+      letter-spacing: 3px;
+      background: linear-gradient(135deg, #fff, var(--cyan), var(--red));
+      -webkit-background-clip: text;
+      color: transparent;
     }
 
-    .card p{
-      margin:24px auto;
-      max-width:430px;
-      color:#bdc9e9;
-      font-size:13px;
-      line-height:1.7;
+    .card p {
+      margin: 22px auto;
+      max-width: 420px;
+      color: #bdc9e4;
+      font-size: 13px;
+      line-height: 1.7;
     }
 
-    #startButton{
-      padding:15px 28px;
-      border:0;
-      background:linear-gradient(120deg,#713cff,#00c9ff);
-      box-shadow:0 10px 35px #00caff55;
+    #startButton {
+      padding: 14px 25px;
+      border: 0;
+      background: linear-gradient(120deg, var(--purple), #00caff);
+      box-shadow: 0 10px 35px #00caff55;
     }
 
-    #message{
-      min-height:18px;
-      margin-top:13px;
-      color:#ffb9b9;
-      font-size:11px;
+    #message {
+      min-height: 18px;
+      margin-top: 13px;
+      color: #ffb4b4;
+      font-size: 11px;
     }
 
-    #command{
-      position:fixed;
-      z-index:30;
-      left:50%;
-      top:50%;
-      min-width:180px;
-      padding:13px 25px;
-      border:1px solid #75faff66;
-      border-radius:30px;
-      color:var(--cyan);
-      background:#02091dcc;
-      box-shadow:0 0 35px #00eaff55;
-      opacity:0;
-      pointer-events:none;
-      text-align:center;
-      letter-spacing:2px;
-      font-weight:900;
-      transform:translate(-50%,-50%) scale(.7);
-      transition:.25s ease;
-    }
-
-    #command.show{
-      opacity:1;
-      transform:translate(-50%,-50%) scale(1);
-    }
-
-    @media(max-width:650px){
-      #cameraBox{
-        top:auto;
-        right:10px;
-        bottom:80px;
-        width:145px;
-        border-radius:14px;
+    @media (max-width: 850px) {
+      #templates {
+        bottom: 70px;
+        width: calc(100vw - 20px);
       }
 
-      #hud{
-        top:10px;
-        left:10px;
-        width:230px;
-        padding:13px;
+      #controls {
+        right: 10px;
+        bottom: 10px;
+      }
+    }
+
+    @media (max-width: 650px) {
+      #hud {
+        top: 10px;
+        left: 10px;
+        width: 230px;
+        padding: 13px;
       }
 
-      h1{font-size:15px}
-      .caption,.help{font-size:9px}
-      .row{margin-top:9px;font-size:10px}
-      .stats{margin-top:9px}
-      .stat{padding:5px 2px}
-      .stat small{font-size:8px}
-      .stat b{font-size:10px}
-      button{padding:8px 10px;font-size:9px}
+      h1 {
+        font-size: 14px;
+      }
+
+      .subtitle,
+      .help {
+        font-size: 9px;
+      }
+
+      .row {
+        margin-top: 10px;
+        font-size: 10px;
+      }
+
+      #cameraBox {
+        top: auto;
+        right: 10px;
+        bottom: 105px;
+        width: 145px;
+        border-radius: 14px;
+      }
+
+      #controls {
+        max-width: 210px;
+      }
+
+      #controls button {
+        padding: 8px 10px;
+        font-size: 9px;
+      }
+
+      #templates {
+        bottom: 62px;
+      }
+
+      #templates button {
+        padding: 7px 9px;
+        font-size: 8px;
+      }
     }
   </style>
 </head>
@@ -360,59 +361,72 @@
   <canvas id="scene"></canvas>
   <div id="vignette"></div>
 
-  <div id="cameraBox">
+  <div id="cameraBox" class="glass">
     <video id="video" autoplay muted playsinline></video>
     <canvas id="handCanvas"></canvas>
   </div>
 
-  <section id="hud">
+  <section id="hud" class="glass">
     <div class="brand">
-      <i class="orb"></i>
+      <span class="orb"></span>
       <h1>PARTICLE NEXUS</h1>
     </div>
-    <div class="caption">ULTRA MOTION ENGINE · GPU ACCELERATED</div>
+
+    <div class="subtitle">REAL-TIME HAND CONTROL ENGINE</div>
 
     <div class="row">
       <label>Template</label>
-      <span class="value" id="template">HEART</span>
+      <span class="value" id="templateText">HEART</span>
     </div>
+
     <div class="row">
       <label>Gesture</label>
-      <span class="value" id="gesture">WAITING</span>
+      <span class="value" id="gestureText">WAITING</span>
     </div>
+
     <div class="row">
       <label>Expansion</label>
       <span class="value" id="scaleText">1.00x</span>
     </div>
 
-    <div id="energy"><div id="energyBar"></div></div>
+    <div class="row">
+      <label>Quality</label>
+      <span class="value" id="qualityText">720P</span>
+    </div>
 
-    <div class="stats">
-      <div class="stat"><small>RENDER</small><b id="fps">0</b></div>
-      <div class="stat"><small>TRACK</small><b id="trackFps">0</b></div>
-      <div class="stat"><small>STATE</small><b id="state">READY</b></div>
+    <div class="row">
+      <label>FPS Lock</label>
+      <span class="value" id="fpsText">60 FPS</span>
+    </div>
+
+    <div id="energy">
+      <div id="energyBar"></div>
     </div>
 
     <div class="help">
-      <kbd>Open Palm</kbd> expand · <kbd>Pinch</kbd> shrink<br>
-      <kbd>Fist</kbd> burst · <kbd>Swipe</kbd> template<br>
-      बोलें <kbd>DISMENTAL</kbd> particles blast होंगे<br>
-      बोलें <kbd>REJOIN</kbd> particles वापस जुड़ेंगे<br>
-      Keyboard: <kbd>D</kbd> / <kbd>R</kbd> / <kbd>Space</kbd>
+      Open Palm = expand particles<br>
+      Pinch = shrink particles<br>
+      Fist = burst effect<br>
+      Move hand = rotate system<br>
+      Swipe left/right = change template
     </div>
   </section>
 
-  <div id="buttons"></div>
-  <div id="command"></div>
+  <div id="templates"></div>
+
+  <div id="controls" class="glass">
+    <button id="qualityButton">QUALITY: 720P</button>
+    <button id="fpsButton">FPS: 60</button>
+  </div>
 
   <div id="startScreen">
     <div class="card">
       <h2>PARTICLE<br>NEXUS</h2>
       <p>
-        Camera permission allow करें और हाथ से particles control करें।
-        Voice command “dismental” से particles blast और “rejoin” से वापस form होंगे।
+        Camera permission allow karke hand gestures se particles control karein.
+        Neeche diye buttons se particle quality aur FPS apne hisaab se change karein.
       </p>
-      <button id="startButton">START ULTRA EXPERIENCE</button>
+      <button id="startButton">START EXPERIENCE</button>
       <div id="message"></div>
     </div>
   </div>
@@ -425,41 +439,45 @@
   <script>
     "use strict";
 
-    const CONFIG = {
-      particles: 12000,
-      stars: 900,
-      cameraZ: 31,
-      trackingWidth: 640,
-      trackingHeight: 480,
-      maxDpr: 2,
-      renderLimit: 120,
-      handInterval: 32,
-      handConfidence: .62
-    };
+    const QUALITY = [
+      { label: "480P", particles: 7000, dpr: 1 },
+      { label: "720P", particles: 12000, dpr: 1.25 },
+      { label: "1080P", particles: 18000, dpr: 1.6 },
+      { label: "2K", particles: 24000, dpr: 2 }
+    ];
+
+    const FPS_OPTIONS = [60, 90, 120, 144];
+
+    const TEMPLATES = [
+      "HEART",
+      "FLOWER",
+      "SATURN",
+      "GALAXY",
+      "FIREWORKS",
+      "DNA",
+      "ATOM",
+      "VORTEX"
+    ];
 
     const $ = id => document.getElementById(id);
 
     const sceneCanvas = $("scene");
     const video = $("video");
     const handCanvas = $("handCanvas");
-    const handCtx = handCanvas.getContext("2d", { alpha:true });
+    const handCtx = handCanvas.getContext("2d");
+
+    const templateText = $("templateText");
+    const gestureText = $("gestureText");
+    const scaleText = $("scaleText");
+    const qualityText = $("qualityText");
+    const fpsText = $("fpsText");
+    const energyBar = $("energyBar");
+    const qualityButton = $("qualityButton");
+    const fpsButton = $("fpsButton");
+    const templatesBox = $("templates");
     const startScreen = $("startScreen");
     const startButton = $("startButton");
     const message = $("message");
-    const commandBox = $("command");
-    const templateText = $("template");
-    const gestureText = $("gesture");
-    const scaleText = $("scaleText");
-    const energyBar = $("energyBar");
-    const fpsText = $("fps");
-    const trackFpsText = $("trackFps");
-    const stateText = $("state");
-    const buttons = $("buttons");
-
-    const templates = [
-      "HEART","FLOWER","SATURN","FIREWORKS",
-      "GALAXY","DNA","ATOM","VORTEX","SPHERE"
-    ];
 
     let scene;
     let camera;
@@ -467,432 +485,370 @@
     let points;
     let geometry;
     let material;
-    let clock;
+
+    let qualityIndex = 1;
+    let fpsIndex = 0;
+    let particleCount = QUALITY[qualityIndex].particles;
+    let renderLimit = FPS_OPTIONS[fpsIndex];
 
     let positions;
-    let velocities;
     let targetPositions;
+    let velocities;
     let phases;
     let sizes;
-    let randoms;
 
-    let currentTemplate = 0;
+    let templateIndex = 0;
     let handX = .5;
     let handY = .5;
-    let targetScale = 1;
     let currentScale = 1;
+    let targetScale = 1;
     let energy = .25;
 
-    let mode = "FORMED";
-    let cameraStarted = false;
-    let lastGesture = "WAITING";
     let previousSwipeX = null;
     let swipeCooldown = 0;
-    let burstCooldown = 0;
-    let gestureCooldown = 0;
-
-    let renderFrames = 0;
-    let renderStart = performance.now();
-    let trackFrames = 0;
-    let trackStart = performance.now();
+    let lastGesture = "WAITING";
+    let cameraStarted = false;
+    let handBusy = false;
+    let lastHandFrame = 0;
     let lastRender = 0;
-    let lastHandTime = 0;
+    let time = 0;
 
     const color = new THREE.Color();
-    const temp = new THREE.Vector3();
 
-    function rand(min,max){
+    function rand(min, max) {
       return min + Math.random() * (max - min);
     }
 
-    function clamp(v,min,max){
-      return Math.max(min,Math.min(max,v));
+    function smooth(current, target, amount) {
+      return current + (target - current) * amount;
     }
 
-    function smooth(a,b,t){
-      return a + (b-a) * t;
+    function distance(a, b) {
+      return Math.hypot(a.x - b.x, a.y - b.y, (a.z || 0) - (b.z || 0));
     }
 
-    function distance(a,b){
-      return Math.hypot(a.x-b.x,a.y-b.y,a.z-b.z);
+    function createShape(generator) {
+      const data = new Float32Array(particleCount * 3);
+      generator(data);
+      return data;
     }
 
-    function allocate(){
-      const n = CONFIG.particles * 3;
-      positions = new Float32Array(n);
-      velocities = new Float32Array(n);
-      targetPositions = new Float32Array(n);
-      phases = new Float32Array(CONFIG.particles);
-      sizes = new Float32Array(CONFIG.particles);
-      randoms = new Float32Array(CONFIG.particles);
-
-      for(let i=0;i<CONFIG.particles;i++){
-        phases[i] = Math.random() * Math.PI * 2;
-        sizes[i] = rand(.55,1.45);
-        randoms[i] = Math.random();
-      }
-    }
-
-    function createHeart(){
-      const data = new Float32Array(CONFIG.particles*3);
-
-      for(let i=0;i<CONFIG.particles;i++){
-        const t = Math.random()*Math.PI*2;
+    function heart(data) {
+      for (let i = 0; i < particleCount; i++) {
+        const p = i * 3;
+        const t = Math.random() * Math.PI * 2;
         const fill = Math.sqrt(Math.random());
-        const x = 16*Math.sin(t)**3;
-        const y = 13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t);
 
-        data[i*3] = x*.43*fill + rand(-.06,.06);
-        data[i*3+1] = y*.43*fill + rand(-.06,.06);
-        data[i*3+2] = rand(-2.3,2.3)*fill;
+        data[p] = 16 * Math.sin(t) ** 3 * .43 * fill;
+        data[p + 1] =
+          (13 * Math.cos(t) -
+            5 * Math.cos(t * 2) -
+            2 * Math.cos(t * 3) -
+            Math.cos(t * 4)) * .43 * fill;
+        data[p + 2] = rand(-2.2, 2.2) * fill;
       }
-
-      return data;
     }
 
-    function createFlower(){
-      const data = new Float32Array(CONFIG.particles*3);
+    function flower(data) {
+      for (let i = 0; i < particleCount; i++) {
+        const p = i * 3;
+        const a = Math.random() * Math.PI * 2;
+        const r = Math.sqrt(Math.random()) * 8;
+        const petal = 1 + Math.cos(a * 10) * .34;
 
-      for(let i=0;i<CONFIG.particles;i++){
-        const a = Math.random()*Math.PI*2;
-        const r = Math.sqrt(Math.random())*8;
-        const petal = 1 + Math.cos(a*10)*.32;
-
-        data[i*3] = Math.cos(a)*r*petal;
-        data[i*3+1] = Math.sin(a)*r*petal;
-        data[i*3+2] = Math.sin(r*1.5)*1.7 + rand(-.25,.25);
+        data[p] = Math.cos(a) * r * petal;
+        data[p + 1] = Math.sin(a) * r * petal;
+        data[p + 2] = Math.sin(r * 1.5) * 1.5 + rand(-.2, .2);
       }
-
-      return data;
     }
 
-    function createSaturn(){
-      const data = new Float32Array(CONFIG.particles*3);
-      const planetCount = CONFIG.particles*.55;
+    function saturn(data) {
+      for (let i = 0; i < particleCount; i++) {
+        const p = i * 3;
 
-      for(let i=0;i<CONFIG.particles;i++){
-        const p = i*3;
+        if (i < particleCount * .55) {
+          const a = Math.random() * Math.PI * 2;
+          const z = rand(-1, 1);
+          const r = 3.2 * Math.cbrt(Math.random());
+          const s = Math.sqrt(1 - z * z);
 
-        if(i<planetCount){
-          const a = Math.random()*Math.PI*2;
-          const z = rand(-1,1);
-          const r = 3.2*Math.cbrt(Math.random());
-          const s = Math.sqrt(1-z*z);
+          data[p] = r * s * Math.cos(a);
+          data[p + 1] = r * z;
+          data[p + 2] = r * s * Math.sin(a);
+        } else {
+          const a = Math.random() * Math.PI * 2;
+          const r = rand(4, 9);
 
-          data[p] = r*s*Math.cos(a);
-          data[p+1] = r*z;
-          data[p+2] = r*s*Math.sin(a);
-        }else{
-          const a = Math.random()*Math.PI*2;
-          const r = rand(4.1,9);
-
-          data[p] = Math.cos(a)*r;
-          data[p+1] = rand(-.14,.14);
-          data[p+2] = Math.sin(a)*r*.43;
+          data[p] = Math.cos(a) * r;
+          data[p + 1] = rand(-.15, .15);
+          data[p + 2] = Math.sin(a) * r * .45;
         }
       }
-
-      return data;
     }
 
-    function createFireworks(){
-      const data = new Float32Array(CONFIG.particles*3);
-      const bursts = 25;
-
-      for(let i=0;i<CONFIG.particles;i++){
-        const p = i*3;
-        const b = Math.floor(Math.random()*bursts);
-        const a = Math.random()*Math.PI*2;
-        const z = rand(-1,1);
-        const s = Math.sqrt(1-z*z);
-        const r = Math.pow(Math.random(),.38)*4.3;
-
-        data[p] = (b%5-2)*3 + Math.cos(a)*s*r;
-        data[p+1] = (Math.floor(b/5)-2)*2.8 + z*r;
-        data[p+2] = rand(-1.4,1.4) + Math.sin(a)*s*r;
-      }
-
-      return data;
-    }
-
-    function createGalaxy(){
-      const data = new Float32Array(CONFIG.particles*3);
+    function galaxy(data) {
       const arms = 5;
 
-      for(let i=0;i<CONFIG.particles;i++){
-        const p = i*3;
-        const r = Math.pow(Math.random(),.62)*11;
-        const arm = Math.floor(Math.random()*arms);
-        const a = arm*Math.PI*2/arms + r*.58 + rand(-.28,.28);
+      for (let i = 0; i < particleCount; i++) {
+        const p = i * 3;
+        const r = Math.pow(Math.random(), .62) * 11;
+        const arm = Math.floor(Math.random() * arms);
+        const a = arm * Math.PI * 2 / arms + r * .6 + rand(-.25, .25);
 
-        data[p] = Math.cos(a)*r;
-        data[p+1] = rand(-.55,.55)*(1+r*.06);
-        data[p+2] = Math.sin(a)*r;
+        data[p] = Math.cos(a) * r;
+        data[p + 1] = rand(-.45, .45) * (1 + r * .05);
+        data[p + 2] = Math.sin(a) * r;
       }
-
-      return data;
     }
 
-    function createDNA(){
-      const data = new Float32Array(CONFIG.particles*3);
+    function fireworks(data) {
+      const bursts = 24;
 
-      for(let i=0;i<CONFIG.particles;i++){
-        const p = i*3;
-        const y = rand(-8,8);
-        const a = y*.85;
-        const strand = i&1;
-        const sign = strand ? 1 : -1;
+      for (let i = 0; i < particleCount; i++) {
+        const p = i * 3;
+        const burst = Math.floor(Math.random() * bursts);
+        const a = Math.random() * Math.PI * 2;
+        const z = rand(-1, 1);
+        const r = Math.pow(Math.random(), .42) * 4.5;
+        const s = Math.sqrt(1 - z * z);
 
-        if(i%6===0){
-          data[p] = rand(-3.1,3.1);
-          data[p+1] = y;
-          data[p+2] = 0;
-        }else{
-          data[p] = Math.cos(a)*3.2*sign + rand(-.12,.12);
-          data[p+1] = y + rand(-.1,.1);
-          data[p+2] = Math.sin(a)*3.2*sign + rand(-.12,.12);
-        }
+        data[p] = (burst % 6 - 2.5) * 3 + Math.cos(a) * s * r;
+        data[p + 1] = (Math.floor(burst / 6) - 1.5) * 3 + z * r;
+        data[p + 2] = rand(-1.4, 1.4) + Math.sin(a) * s * r;
       }
-
-      return data;
     }
 
-    function createAtom(){
-      const data = new Float32Array(CONFIG.particles*3);
+    function dna(data) {
+      for (let i = 0; i < particleCount; i++) {
+        const p = i * 3;
+        const y = rand(-8, 8);
+        const a = y * .85;
+        const sign = i % 2 ? 1 : -1;
 
-      for(let i=0;i<CONFIG.particles;i++){
-        const p = i*3;
-        const a = Math.random()*Math.PI*2;
-        const plane = (i%3)*Math.PI/3;
-        const r = rand(3.5,9);
-
-        data[p] = Math.cos(a)*r;
-        data[p+1] = Math.sin(a)*Math.sin(plane)*r;
-        data[p+2] = Math.sin(a)*Math.cos(plane)*r;
+        data[p] = Math.cos(a) * 3.1 * sign + rand(-.12, .12);
+        data[p + 1] = y;
+        data[p + 2] = Math.sin(a) * 3.1 * sign + rand(-.12, .12);
       }
-
-      return data;
     }
 
-    function createVortex(){
-      const data = new Float32Array(CONFIG.particles*3);
+    function atom(data) {
+      for (let i = 0; i < particleCount; i++) {
+        const p = i * 3;
+        const a = Math.random() * Math.PI * 2;
+        const plane = (i % 3) * Math.PI / 3;
+        const r = rand(3.5, 9);
 
-      for(let i=0;i<CONFIG.particles;i++){
-        const p = i*3;
+        data[p] = Math.cos(a) * r;
+        data[p + 1] = Math.sin(a) * Math.sin(plane) * r;
+        data[p + 2] = Math.sin(a) * Math.cos(plane) * r;
+      }
+    }
+
+    function vortex(data) {
+      for (let i = 0; i < particleCount; i++) {
+        const p = i * 3;
         const t = Math.random();
-        const r = t*10;
-        const a = t*Math.PI*12 + rand(-.3,.3);
+        const r = t * 10;
+        const a = t * Math.PI * 12 + rand(-.25, .25);
 
-        data[p] = Math.cos(a)*r;
-        data[p+1] = (t-.5)*16 + rand(-.2,.2);
-        data[p+2] = Math.sin(a)*r;
+        data[p] = Math.cos(a) * r;
+        data[p + 1] = (t - .5) * 16;
+        data[p + 2] = Math.sin(a) * r;
+      }
+    }
+
+    function createTemplate(index) {
+      const generators = [
+        heart,
+        flower,
+        saturn,
+        galaxy,
+        fireworks,
+        dna,
+        atom,
+        vortex
+      ];
+
+      return createShape(generators[index]);
+    }
+
+    function allocateParticles() {
+      positions = new Float32Array(particleCount * 3);
+      velocities = new Float32Array(particleCount * 3);
+      phases = new Float32Array(particleCount);
+      sizes = new Float32Array(particleCount);
+
+      for (let i = 0; i < particleCount; i++) {
+        phases[i] = Math.random() * Math.PI * 2;
+        sizes[i] = rand(.65, 1.45);
       }
 
-      return data;
+      targetPositions = createTemplate(templateIndex);
+      positions.set(targetPositions);
     }
 
-    function createSphere(){
-      const data = new Float32Array(CONFIG.particles*3);
+    function rebuildQuality() {
+      particleCount = QUALITY[qualityIndex].particles;
+      allocateParticles();
 
-      for(let i=0;i<CONFIG.particles;i++){
-        const p = i*3;
-        const a = Math.random()*Math.PI*2;
-        const z = rand(-1,1);
-        const r = 7*Math.cbrt(Math.random());
-        const s = Math.sqrt(1-z*z);
+      geometry.setAttribute(
+        "position",
+        new THREE.BufferAttribute(positions, 3)
+      );
 
-        data[p] = r*s*Math.cos(a);
-        data[p+1] = r*z;
-        data[p+2] = r*s*Math.sin(a);
-      }
+      geometry.setAttribute(
+        "aSize",
+        new THREE.BufferAttribute(sizes, 1)
+      );
 
-      return data;
+      geometry.attributes.position.needsUpdate = true;
+      geometry.attributes.aSize.needsUpdate = true;
+
+      resizeRenderer();
+
+      qualityText.textContent = QUALITY[qualityIndex].label;
+      qualityButton.textContent = `QUALITY: ${QUALITY[qualityIndex].label}`;
     }
 
-    function makeTemplate(index){
-      return [
-        createHeart,createFlower,createSaturn,createFireworks,
-        createGalaxy,createDNA,createAtom,createVortex,createSphere
-      ][index]();
-    }
+    function setTemplate(index) {
+      templateIndex = (index + TEMPLATES.length) % TEMPLATES.length;
+      targetPositions = createTemplate(templateIndex);
+      templateText.textContent = TEMPLATES[templateIndex];
+      energy = Math.min(1, energy + .25);
 
-    function setTemplate(index){
-      currentTemplate = (index + templates.length) % templates.length;
-      targetPositions = makeTemplate(currentTemplate);
-      templateText.textContent = templates[currentTemplate];
-      energy = Math.min(1,energy+.32);
-
-      [...buttons.children].forEach((button,i)=>{
-        button.classList.toggle("active",i===currentTemplate);
+      [...templatesBox.children].forEach((button, i) => {
+        button.classList.toggle("active", i === templateIndex);
       });
-
-      if(mode==="FORMED") stateText.textContent = "FORMED";
     }
 
-    function createButtons(){
-      templates.forEach((name,index)=>{
+    function createTemplateButtons() {
+      TEMPLATES.forEach((name, index) => {
         const button = document.createElement("button");
         button.textContent = name;
-        button.addEventListener("click",()=>setTemplate(index));
-        buttons.appendChild(button);
+        button.addEventListener("click", () => setTemplate(index));
+        templatesBox.appendChild(button);
       });
     }
 
-    function createParticleTexture(){
-      const canvas = document.createElement("canvas");
-      canvas.width = 64;
-      canvas.height = 64;
+    function resizeRenderer() {
+      if (!renderer || !camera) return;
 
-      const ctx = canvas.getContext("2d");
-      const gradient = ctx.createRadialGradient(32,32,0,32,32,32);
-      gradient.addColorStop(0,"#ffffff");
-      gradient.addColorStop(.16,"#ffffffee");
-      gradient.addColorStop(.42,"#7dfaff88");
-      gradient.addColorStop(1,"#00eaff00");
+      camera.aspect = innerWidth / innerHeight;
+      camera.updateProjectionMatrix();
 
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0,0,64,64);
+      renderer.setPixelRatio(
+        Math.min(devicePixelRatio, QUALITY[qualityIndex].dpr)
+      );
 
-      const texture = new THREE.CanvasTexture(canvas);
-      texture.colorSpace = THREE.SRGBColorSpace;
-      return texture;
+      renderer.setSize(innerWidth, innerHeight, false);
     }
 
-    function initThree(){
+    function initThree() {
       scene = new THREE.Scene();
-      scene.fog = new THREE.FogExp2(0x01030c,.012);
+      scene.fog = new THREE.FogExp2(0x01030b, .014);
 
       camera = new THREE.PerspectiveCamera(
         58,
-        innerWidth/innerHeight,
+        innerWidth / innerHeight,
         .1,
         1000
       );
-      camera.position.z = CONFIG.cameraZ;
+
+      camera.position.z = 30;
 
       renderer = new THREE.WebGLRenderer({
-        canvas:sceneCanvas,
-        antialias:false,
-        alpha:false,
-        powerPreference:"high-performance",
-        preserveDrawingBuffer:false
+        canvas: sceneCanvas,
+        antialias: false,
+        powerPreference: "high-performance"
       });
 
-      renderer.setPixelRatio(Math.min(devicePixelRatio,CONFIG.maxDpr));
-      renderer.setSize(innerWidth,innerHeight,false);
-      renderer.setClearColor(0x01030c,1);
-      renderer.outputColorSpace = THREE.SRGBColorSpace;
-      renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.15;
+      renderer.setPixelRatio(
+        Math.min(devicePixelRatio, QUALITY[qualityIndex].dpr)
+      );
+      renderer.setSize(innerWidth, innerHeight, false);
+      renderer.setClearColor(0x01030b, 1);
 
-      allocate();
-
-      targetPositions = makeTemplate(0);
-      positions.set(targetPositions);
+      allocateParticles();
 
       geometry = new THREE.BufferGeometry();
-      geometry.setAttribute("position",new THREE.BufferAttribute(positions,3));
-      geometry.setAttribute("aSize",new THREE.BufferAttribute(sizes,1));
-      geometry.setAttribute("aPhase",new THREE.BufferAttribute(phases,1));
-      geometry.setAttribute("aRandom",new THREE.BufferAttribute(randoms,1));
+      geometry.setAttribute(
+        "position",
+        new THREE.BufferAttribute(positions, 3)
+      );
+      geometry.setAttribute(
+        "aSize",
+        new THREE.BufferAttribute(sizes, 1)
+      );
 
       material = new THREE.ShaderMaterial({
-        uniforms:{
-          uTime:{value:0},
-          uColor:{value:new THREE.Color("#64f7ff")},
-          uSize:{value:7},
-          uOpacity:{value:.95},
-          uEnergy:{value:.25},
-          uMode:{value:0}
+        uniforms: {
+          uTime: { value: 0 },
+          uColor: { value: new THREE.Color("#70f7ff") },
+          uPointSize: { value: 7 }
         },
 
-        vertexShader:`
+        vertexShader: `
           attribute float aSize;
-          attribute float aPhase;
-          attribute float aRandom;
-
           uniform float uTime;
-          uniform float uSize;
-          uniform float uEnergy;
-          uniform float uMode;
+          uniform float uPointSize;
 
-          varying float vAlpha;
-          varying float vRandom;
+          varying float vSize;
 
-          void main(){
+          void main() {
             vec3 p = position;
 
-            float pulse = sin(uTime * 2.0 + aPhase) * .035;
-            p += normalize(p + vec3(.001)) * pulse * (1.0 - uMode * .4);
-
-            float twist = uMode * .18;
-            float c = cos(twist);
-            float s = sin(twist);
-            p.xz = mat2(c, -s, s, c) * p.xz;
+            p += normalize(p + vec3(.001)) *
+              sin(uTime * 1.7 + aSize * 8.0) * .035;
 
             vec4 mv = modelViewMatrix * vec4(p, 1.0);
             gl_Position = projectionMatrix * mv;
 
-            float perspective = 210.0 / max(1.0, -mv.z);
             gl_PointSize = clamp(
-              uSize * aSize * perspective,
+              uPointSize * aSize * (190.0 / -mv.z),
               1.0,
               30.0
             );
 
-            vAlpha = .65 + aSize * .3;
-            vRandom = aRandom;
+            vSize = aSize;
           }
         `,
 
-        fragmentShader:`
+        fragmentShader: `
           uniform vec3 uColor;
-          uniform float uOpacity;
-          uniform float uEnergy;
+          varying float vSize;
 
-          varying float vAlpha;
-          varying float vRandom;
-
-          void main(){
+          void main() {
             vec2 p = gl_PointCoord - .5;
             float d = length(p);
 
-            if(d > .5) discard;
+            if (d > .5) discard;
 
-            float outer = smoothstep(.5, .03, d);
-            float inner = smoothstep(.22, 0.0, d);
-            float sparkle = .82 + .18 *
-              sin(vRandom * 80.0 + uEnergy * 12.0);
-
-            vec3 rgb = uColor *
-              (outer * .85 + inner * 1.7) *
-              sparkle;
+            float glow = smoothstep(.5, .02, d);
+            float core = smoothstep(.2, 0.0, d);
 
             gl_FragColor = vec4(
-              rgb,
-              outer * vAlpha * uOpacity
+              uColor * (glow * .85 + core * 1.8),
+              glow * (.65 + vSize * .3)
             );
           }
         `,
 
-        transparent:true,
-        depthWrite:false,
-        blending:THREE.AdditiveBlending
-      });
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
+           });
 
       points = new THREE.Points(geometry, material);
       scene.add(points);
 
       createStars();
-
-      clock = new THREE.Clock();
-      animate();
+      requestAnimationFrame(animate);
     }
 
-    function createStars(){
-      const data = new Float32Array(CONFIG.stars * 3);
+    function createStars() {
+      const data = new Float32Array(1000 * 3);
 
-      for(let i = 0; i < data.length; i++){
+      for (let i = 0; i < data.length; i++) {
         data[i] = rand(-230, 230);
       }
 
@@ -903,270 +859,142 @@
         new THREE.BufferAttribute(data, 3)
       );
 
-      const starMaterial = new THREE.PointsMaterial({
-        color:0x8abfff,
-        size:.24,
-        transparent:true,
-        opacity:.25,
-        depthWrite:false
-      });
-
-      scene.add(
-        new THREE.Points(starGeometry, starMaterial)
-      );
+      scene.add(new THREE.Points(
+        starGeometry,
+        new THREE.PointsMaterial({
+          color: 0x8dbdff,
+          size: .22,
+          transparent: true,
+          opacity: .28,
+          depthWrite: false
+        })
+      ));
     }
 
-    function showCommand(text){
-      commandBox.textContent = text;
-      commandBox.classList.add("show");
-
-      clearTimeout(showCommand.timer);
-
-      showCommand.timer = setTimeout(() => {
-        commandBox.classList.remove("show");
-      }, 850);
-    }
-
-    function triggerBurst(){
-      if(burstCooldown > 0 || mode === "DISMENTAL") return;
-
-      burstCooldown = 24;
-      energy = 1;
-      targetScale = 1.7;
-
-      for(let i = 0; i < CONFIG.particles; i++){
-        const p = i * 3;
-
-        velocities[p] += rand(-1.8, 1.8);
-        velocities[p + 1] += rand(-1.8, 1.8);
-        velocities[p + 2] += rand(-1.8, 1.8);
-      }
-
-      showCommand("BURST");
-
-      setTimeout(() => {
-        targetScale = 1;
-      }, 300);
-    }
-
-    function triggerDismental(){
-      if(mode === "DISMENTAL" || gestureCooldown > 0) return;
-
-      mode = "DISMENTAL";
-      gestureCooldown = 18;
-
-      stateText.textContent = "BLAST";
-      gestureText.textContent = "DISMENTAL";
-      energy = 1;
-
-      material.uniforms.uMode.value = 1;
-      showCommand("DISMENTAL");
-
-      for(let i = 0; i < CONFIG.particles; i++){
-        const p = i * 3;
-
-        const x = positions[p];
-        const y = positions[p + 1];
-        const z = positions[p + 2];
-
-        const length = Math.hypot(x, y, z) || 1;
-        const force = rand(3.5, 8.5);
-
-        velocities[p] =
-          x / length * force + rand(-.8, .8);
-
-        velocities[p + 1] =
-          y / length * force + rand(-.8, .8);
-
-        velocities[p + 2] =
-          z / length * force + rand(-.8, .8);
-      }
-    }
-
-    function triggerRejoin(){
-      if(mode !== "DISMENTAL" || gestureCooldown > 0) return;
-
-      mode = "REJOIN";
-      gestureCooldown = 18;
-
-      stateText.textContent = "REJOIN";
-      gestureText.textContent = "REJOIN";
-      energy = 1;
-
-      targetPositions = makeTemplate(currentTemplate);
-      material.uniforms.uMode.value = 0;
-
-      showCommand("REJOIN");
-
-      setTimeout(() => {
-        if(mode === "REJOIN"){
-          mode = "FORMED";
-          stateText.textContent = "FORMED";
-        }
-      }, 1500);
-    }
-
-    function updateParticles(time, delta){
-      const dt = Math.min(delta, .033);
-      const formed = mode !== "DISMENTAL";
-
-      const spring = mode === "REJOIN" ? .16 : .075;
-      const damping = mode === "DISMENTAL" ? .985 : .91;
-      const movement = mode === "DISMENTAL" ? dt * 1.5 : dt * 1.15;
-
-      for(let i = 0; i < CONFIG.particles; i++){
-        const p = i * 3;
-
-        if(formed){
-          const tx = targetPositions[p] * currentScale;
-          const ty = targetPositions[p + 1] * currentScale;
-          const tz = targetPositions[p + 2] * currentScale;
-
-          velocities[p] +=
-            (tx - positions[p]) * spring;
-
-          velocities[p + 1] +=
-            (ty - positions[p + 1]) * spring;
-
-          velocities[p + 2] +=
-            (tz - positions[p + 2]) * spring;
-
-          const wave = Math.sin(
-            time * 1.4 + phases[i]
-          ) * .006;
-
-          velocities[p] += wave;
-
-          velocities[p + 1] += Math.cos(
-            time + phases[i]
-          ) * .006;
-        }else{
-          velocities[p] += Math.sin(
-            time * .7 + phases[i]
-          ) * .003;
-
-          velocities[p + 1] += Math.cos(
-            time * .8 + phases[i]
-          ) * .003;
-        }
-
-        velocities[p] *= damping;
-        velocities[p + 1] *= damping;
-        velocities[p + 2] *= damping;
-
-        positions[p] += velocities[p] * movement;
-        positions[p + 1] += velocities[p + 1] * movement;
-        positions[p + 2] += velocities[p + 2] * movement;
-      }
-
-      geometry.attributes.position.needsUpdate = true;
-    }
-
-    function updateHud(){
-      energy *= .992;
-      energy = Math.max(.06, energy);
-
-      energyBar.style.width = `${energy * 100}%`;
-      scaleText.textContent = `${currentScale.toFixed(2)}x`;
-
-      if(burstCooldown > 0) burstCooldown--;
-      if(swipeCooldown > 0) swipeCooldown--;
-      if(gestureCooldown > 0) gestureCooldown--;
-    }
-
-    function animate(now = performance.now()){
+    function animate(now = performance.now()) {
       requestAnimationFrame(animate);
 
-      const frameGap = 1000 / CONFIG.renderLimit;
+      const frameTime = 1000 / renderLimit;
 
-      if(now - lastRender < frameGap) return;
+      if (now - lastRender < frameTime) return;
 
-      const delta = (now - lastRender) / 1000 || .016;
+      const delta = Math.min(
+        (now - lastRender) / 1000 || .016,
+        .033
+      );
+
       lastRender = now;
-
-      const time = clock
-        ? clock.getElapsedTime()
-        : now / 1000;
+      time += delta;
 
       currentScale = smooth(
         currentScale,
         targetScale,
-        .09
+        .08
       );
 
-      updateParticles(time, delta);
+      for (let i = 0; i < particleCount; i++) {
+        const p = i * 3;
+
+        velocities[p] +=
+          (targetPositions[p] * currentScale - positions[p]) * .012;
+
+        velocities[p + 1] +=
+          (targetPositions[p + 1] * currentScale - positions[p + 1]) * .012;
+
+        velocities[p + 2] +=
+          (targetPositions[p + 2] * currentScale - positions[p + 2]) * .012;
+
+        velocities[p] *= .88;
+        velocities[p + 1] *= .88;
+        velocities[p + 2] *= .88;
+
+        positions[p] += velocities[p] * delta * 60;
+        positions[p + 1] += velocities[p + 1] * delta * 60;
+        positions[p + 2] += velocities[p + 2] * delta * 60;
+      }
+
+      geometry.attributes.position.needsUpdate = true;
 
       points.rotation.y +=
-        .0015 + (handX - .5) * .011;
+        .0018 + (handX - .5) * .012;
 
       points.rotation.x = smooth(
         points.rotation.x,
-        (handY - .5) * .25,
+        (handY - .5) * .35,
         .04
       );
 
-      points.rotation.z = Math.sin(time * .25) * .045;
+      points.rotation.z =
+        Math.sin(time * .25) * .07;
 
-      const hue =
-        (time * .025 + currentTemplate * .105) % 1;
-
-      color.setHSL(hue, .9, .64);
+      color.setHSL(
+        (time * .025 + templateIndex * .12) % 1,
+        .92,
+        .65
+      );
 
       material.uniforms.uTime.value = time;
       material.uniforms.uColor.value.copy(color);
-      material.uniforms.uSize.value = 6.5 + energy * 3.5;
-      material.uniforms.uEnergy.value = energy;
+      material.uniforms.uPointSize.value =
+        6 + energy * 4;
 
-      updateHud();
+      energy = Math.max(
+        .08,
+        energy * .989
+      );
+
+      energyBar.style.width =
+        `${energy * 100}%`;
+
+      scaleText.textContent =
+        `${currentScale.toFixed(2)}x`;
+
+      if (swipeCooldown > 0) {
+        swipeCooldown--;
+      }
 
       renderer.render(scene, camera);
-
-      renderFrames++;
-
-      if(now - renderStart > 700){
-        fpsText.textContent = Math.round(
-          renderFrames * 1000 / (now - renderStart)
-        );
-
-        renderFrames = 0;
-        renderStart = now;
-      }
     }
 
-    function palmSize(points){
-      return Math.max(
+    function fingerOpen(points, tip, pip) {
+      return distance(points[tip], points[0]) >
+        distance(points[pip], points[0]) + .08;
+    }
+
+    function detectGesture(points) {
+      const index = fingerOpen(points, 8, 6);
+      const middle = fingerOpen(points, 12, 10);
+      const ring = fingerOpen(points, 16, 14);
+      const pinky = fingerOpen(points, 20, 18);
+
+      const palmSize = Math.max(
         .06,
         distance(points[0], points[9])
       );
-    }
-
-    function fingerExtended(points, tip, pip){
-      const palm = distance(points[0], points[9]);
-
-      return distance(points[tip], points[0]) >
-        distance(points[pip], points[0]) + palm * .08;
-    }
-
-    function detectGesture(points){
-      const index = fingerExtended(points, 8, 6);
-      const middle = fingerExtended(points, 12, 10);
-      const ring = fingerExtended(points, 16, 14);
-      const pinky = fingerExtended(points, 20, 18);
 
       const pinch =
-        distance(points[4], points[8]) /
-        palmSize(points);
+        distance(points[4], points[8]) / palmSize;
 
-      if(pinch < .42) return "PINCH";
-      if(index && middle && ring && pinky) return "OPEN PALM";
-      if(!index && !middle && !ring && !pinky) return "FIST";
-      if(index && middle && !ring && !pinky) return "VICTORY";
-      if(index && !middle && !ring && !pinky) return "POINT";
+      if (pinch < .43) {
+        return "PINCH";
+      }
+
+      if (index && middle && ring && pinky) {
+        return "OPEN PALM";
+      }
+
+      if (!index && !middle && !ring && !pinky) {
+        return "FIST";
+      }
+
+      if (index && middle && !ring && !pinky) {
+        return "VICTORY";
+      }
 
       return "TRACKING";
     }
 
-    function drawHand(points){
+    function drawHand(points) {
       handCtx.clearRect(
         0,
         0,
@@ -1174,19 +1002,20 @@
         handCanvas.height
       );
 
-      if(!points) return;
+      if (!points) return;
 
       handCtx.save();
-      handCtx.shadowBlur = 12;
-      handCtx.shadowColor = "#7dfaff";
+
+      handCtx.shadowBlur = 14;
+      handCtx.shadowColor = "#ff315d";
 
       drawConnectors(
         handCtx,
         points,
         HAND_CONNECTIONS,
         {
-          color:"#e9fbff",
-          lineWidth:4
+          color: "#238dff",
+          lineWidth: 7
         }
       );
 
@@ -1195,8 +1024,8 @@
         points,
         HAND_CONNECTIONS,
         {
-          color:"#7bdfff",
-          lineWidth:2
+          color: "#ff315d",
+          lineWidth: 3
         }
       );
 
@@ -1204,40 +1033,28 @@
         handCtx,
         points,
         {
-          color:"#fff5c4",
-          fillColor:"#fff5c4",
-          lineWidth:2,
-          radius:4
+          color: "#ff315d",
+          fillColor: "#74eaff",
+          lineWidth: 2,
+          radius: 4
         }
       );
 
       handCtx.restore();
     }
 
-    function handleHands(results){
+    function handleHands(results) {
       const points =
         results.multiHandLandmarks?.[0];
 
-      const now = performance.now();
-
-      trackFrames++;
-
-      if(now - trackStart > 700){
-        trackFpsText.textContent = Math.round(
-          trackFrames * 1000 / (now - trackStart)
-        );
-
-        trackFrames = 0;
-        trackStart = now;
-      }
-
-      if(!points){
+      if (!points) {
         gestureText.textContent = "NO HAND";
         drawHand(null);
 
         targetScale = 1;
         previousSwipeX = null;
         lastGesture = "NO HAND";
+
         return;
       }
 
@@ -1246,34 +1063,44 @@
       handX = smooth(
         handX,
         1 - points[9].x,
-        .24
+        .22
       );
 
       handY = smooth(
         handY,
         points[9].y,
-        .24
+        .22
       );
 
       const gesture = detectGesture(points);
+
       gestureText.textContent = gesture;
 
-      if(gesture === "PINCH"){
+      if (gesture === "PINCH") {
         targetScale = .55;
-        energy = Math.min(1, energy + .012);
-      }else if(gesture === "OPEN PALM"){
+        energy = Math.min(
+          1,
+          energy + .012
+        );
+      } else if (gesture === "OPEN PALM") {
         targetScale = 1.5;
-        energy = Math.min(1, energy + .018);
-      }else if(gesture === "FIST"){
+        energy = Math.min(
+          1,
+          energy + .018
+        );
+      } else if (gesture === "FIST") {
         targetScale = .72;
-        energy = Math.min(1, energy + .025);
 
-        if(lastGesture !== "FIST"){
-          triggerBurst();
+        if (lastGesture !== "FIST") {
+          energy = 1;
+
+          for (let i = 0; i < velocities.length; i++) {
+            velocities[i] += rand(-.5, .5);
+          }
         }
-      }else if(gesture === "VICTORY"){
-        targetScale = 1.12;
-      }else{
+      } else if (gesture === "VICTORY") {
+        targetScale = 1.15;
+      } else {
         targetScale = 1;
       }
 
@@ -1281,99 +1108,96 @@
 
       const x = points[9].x;
 
-      if(
+      if (
         previousSwipeX !== null &&
-        swipeCooldown <= 0
-      ){
-        const movement = x - previousSwipeX;
+        swipeCooldown <= 0 &&
+        Math.abs(x - previousSwipeX) > .16
+      ) {
+        setTemplate(
+          templateIndex +
+          (x < previousSwipeX ? 1 : -1)
+        );
 
-        if(Math.abs(movement) > .12){
-          setTemplate(
-            currentTemplate +
-            (movement < 0 ? 1 : -1)
-          );
+        gestureText.textContent = "SWIPE";
 
-          gestureText.textContent = "SWIPE";
-          swipeCooldown = 22;
-          energy = Math.min(1, energy + .3);
-        }
+        energy = Math.min(
+          1,
+          energy + .3
+        );
+
+        swipeCooldown = 25;
+        previousSwipeX = x;
+      } else {
+        previousSwipeX = x;
       }
-
-      previousSwipeX = x;
     }
 
-    async function startCamera(){
-      if(cameraStarted) return;
+    async function startCamera() {
+      if (cameraStarted) return;
 
-      if(!navigator.mediaDevices?.getUserMedia){
+      if (!navigator.mediaDevices?.getUserMedia) {
         message.textContent =
-          "Camera HTTPS या localhost पर चलाएं.";
+          "Camera ke liye HTTPS ya localhost required hai.";
 
         return;
       }
 
-      try{
+      try {
         message.textContent =
           "Camera starting...";
 
         const stream =
           await navigator.mediaDevices.getUserMedia({
-            video:{
-              facingMode:"user",
-              width:{
-                ideal:CONFIG.trackingWidth
-              },
-              height:{
-                ideal:CONFIG.trackingHeight
-              },
-              frameRate:{
-                ideal:30,
-                max:30
+            video: {
+              facingMode: "user",
+              width: { ideal: 1280 },
+              height: { ideal: 720 },
+              frameRate: {
+                ideal: 60,
+                max: 60
               }
             },
-            audio:false
+            audio: false
           });
 
         video.srcObject = stream;
         await video.play();
 
         const hands = new Hands({
-          locateFile:file =>
+          locateFile: file =>
             `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
         });
 
         hands.setOptions({
-          maxNumHands:1,
-          modelComplexity:1,
-          minDetectionConfidence:CONFIG.handConfidence,
-          minTrackingConfidence:CONFIG.handConfidence
+          maxNumHands: 1,
+          modelComplexity: 1,
+          minDetectionConfidence: .7,
+          minTrackingConfidence: .68
         });
 
         hands.onResults(handleHands);
 
-        let busy = false;
+        const handCamera = new Camera(video, {
+          width: 1280,
+          height: 720,
 
-        const handCamera = new Camera(video,{
-          width:CONFIG.trackingWidth,
-          height:CONFIG.trackingHeight,
-
-          onFrame:async()=>{
+          onFrame: async () => {
             const now = performance.now();
 
-            if(
+            if (
               video.readyState >= 2 &&
-              !busy &&
-              now - lastHandTime >= CONFIG.handInterval
-            ){
-              busy = true;
-              lastHandTime = now;
+              !handBusy &&
+              now - lastHandFrame > 30
+            ) {
+              handBusy = true;
+              lastHandFrame = now;
 
-              try{
+              try {
                 await hands.send({
-                  image:video
+                  image: video
                 });
-              }finally{
-                busy = false;
+              } finally {
+                handBusy = false;
               }
             }
           }
@@ -1383,126 +1207,75 @@
 
         cameraStarted = true;
         startScreen.style.display = "none";
-        stateText.textContent = "LIVE";
-      }catch(error){
+      } catch (error) {
         console.error(error);
 
         message.textContent =
-          "Camera permission या HTTPS/localhost check करें.";
+          "Camera permission aur HTTPS/localhost check karein.";
       }
     }
 
-    function setupVoice(){
-      const SpeechRecognition =
-        window.SpeechRecognition ||
-        window.webkitSpeechRecognition;
+    qualityButton.addEventListener(
+      "click",
+      () => {
+        qualityIndex =
+          (qualityIndex + 1) % QUALITY.length;
 
-      if(!SpeechRecognition) return;
+        rebuildQuality();
+      }
+    );
 
-      const recognition = new SpeechRecognition();
+    fpsButton.addEventListener(
+      "click",
+      () => {
+        fpsIndex =
+          (fpsIndex + 1) % FPS_OPTIONS.length;
 
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      recognition.lang = "en-IN";
+        renderLimit = FPS_OPTIONS[fpsIndex];
 
-      recognition.onresult = event => {
-        const result =
-          event.results[event.results.length - 1];
+        const label = `${renderLimit} FPS`;
 
-        const text =
-          result[0].transcript.toLowerCase().trim();
-
-        const dismental =
-          text.includes("dismental") ||
-          text.includes("dismantle") ||
-          text.includes("destroy") ||
-          text.includes("blast") ||
-          text.includes("dis mental");
-
-        const rejoin =
-          text.includes("rejoin") ||
-          text.includes("join") ||
-          text.includes("reform") ||
-          text.includes("re form");
-
-        if(dismental){
-          triggerDismental();
-        }else if(rejoin){
-          triggerRejoin();
-        }
-      };
-
-      recognition.onerror = () => {};
-
-      recognition.onend = () => {
-        if(cameraStarted){
-          try{
-            recognition.start();
-          }catch(error){}
-        }
-      };
-
-      window.particleRecognition = recognition;
-    }
-
-    function resize(){
-      if(!renderer || !camera) return;
-
-      camera.aspect = innerWidth / innerHeight;
-      camera.updateProjectionMatrix();
-
-      renderer.setPixelRatio(
-        Math.min(devicePixelRatio, CONFIG.maxDpr)
-      );
-
-      renderer.setSize(
-        innerWidth,
-        innerHeight,
-        false
-      );
-    }
-
-    function resizeHandCanvas(){
-      handCanvas.width = video.videoWidth || 640;
-      handCanvas.height = video.videoHeight || 480;
-    }
-
-    function fallbackMove(x, y){
-      if(cameraStarted) return;
-
-      handX = smooth(handX, x, .1);
-      handY = smooth(handY, y, .1);
-    }
+        fpsText.textContent = label;
+        fpsButton.textContent = `FPS: ${renderLimit}`;
+      }
+    );
 
     startButton.addEventListener(
       "click",
-      async() => {
-        await startCamera();
-
-        if(
-          cameraStarted &&
-          window.particleRecognition
-        ){
-          try{
-            window.particleRecognition.start();
-          }catch(error){}
-        }
-      }
+      startCamera
     );
 
     video.addEventListener(
       "loadedmetadata",
-      resizeHandCanvas
+      () => {
+        handCanvas.width =
+          video.videoWidth || 1280;
+
+        handCanvas.height =
+          video.videoHeight || 720;
+      }
     );
 
-    window.addEventListener("resize", resize);
+    window.addEventListener(
+      "resize",
+      resizeRenderer
+    );
 
     window.addEventListener(
       "pointermove",
       event => {
-        fallbackMove(
+        if (cameraStarted) return;
+
+        handX = smooth(
+          handX,
           event.clientX / innerWidth,
-          event.clientY / innerHeight
+          .1
+        );
+
+        handY = smooth(
+          handY,
+          event.clientY / innerHeight,
+          .1
         );
       }
     );
@@ -1510,32 +1283,36 @@
     window.addEventListener(
       "keydown",
       event => {
-        if(event.key === "ArrowRight"){
-          setTemplate(currentTemplate + 1);
+        if (event.key === "ArrowRight") {
+          setTemplate(templateIndex + 1);
         }
 
-        if(event.key === "ArrowLeft"){
-          setTemplate(currentTemplate - 1);
+        if (event.key === "ArrowLeft") {
+          setTemplate(templateIndex - 1);
         }
 
-        if(event.code === "Space"){
-          triggerBurst();
+        if (event.key.toLowerCase() === "q") {
+          qualityButton.click();
         }
 
-        if(event.key.toLowerCase() === "d"){
-          triggerDismental();
+        if (event.key.toLowerCase() === "f") {
+          fpsButton.click();
         }
 
-        if(event.key.toLowerCase() === "r"){
-          triggerRejoin();
+        if (event.code === "Space") {
+          energy = 1;
+          targetScale = 1.8;
+
+          setTimeout(() => {
+            targetScale = 1;
+          }, 280);
         }
       }
     );
 
-    createButtons();
-    setupVoice();
+    createTemplateButtons();
     initThree();
     setTemplate(0);
   </script>
 </body>
-</html>          
+</html> 
